@@ -35,13 +35,13 @@ export async function fetchTasks(): Promise<Task[]> {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching tasks:', error);
+      // Error fetching tasks
       return [];
     }
 
     return data?.map(convertDbTaskToTask) || [];
-  } catch (error) {
-    console.error('Error fetching tasks:', error);
+  } catch {
+    // Error fetching tasks
     return [];
   }
 }
@@ -56,13 +56,13 @@ export async function fetchTasksByMember(memberId: TeamMember): Promise<Task[]> 
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching tasks by member:', error);
+      // Error fetching tasks by member
       return [];
     }
 
     return data?.map(convertDbTaskToTask) || [];
-  } catch (error) {
-    console.error('Error fetching tasks by member:', error);
+  } catch {
+    // Error fetching tasks by member
     return [];
   }
 }
@@ -78,13 +78,13 @@ export async function createTask(task: Omit<Task, 'id' | 'createdAt' | 'updatedA
       .single();
 
     if (error) {
-      console.error('Error creating task:', error);
+      // Error creating task
       return null;
     }
 
     return data ? convertDbTaskToTask(data) : null;
-  } catch (error) {
-    console.error('Error creating task:', error);
+  } catch {
+    // Error creating task
     return null;
   }
 }
@@ -101,13 +101,13 @@ export async function updateTask(taskId: string, updates: Partial<Task>): Promis
       .single();
 
     if (error) {
-      console.error('Error updating task:', error);
+      // Error updating task
       return null;
     }
 
     return data ? convertDbTaskToTask(data) : null;
-  } catch (error) {
-    console.error('Error updating task:', error);
+  } catch {
+    // Error updating task
     return null;
   }
 }
@@ -121,13 +121,13 @@ export async function deleteTask(taskId: string): Promise<boolean> {
       .eq('id', taskId);
 
     if (error) {
-      console.error('Error deleting task:', error);
+      // Error deleting task
       return false;
     }
 
     return true;
-  } catch (error) {
-    console.error('Error deleting task:', error);
+  } catch {
+    // Error deleting task
     return false;
   }
 }
@@ -167,8 +167,8 @@ export async function calculateRealTimeStats(): Promise<TeamStats> {
       testFlightProgress,
       daysUntilDeadline,
     };
-  } catch (error) {
-    console.error('Error calculating stats:', error);
+  } catch {
+    // Error calculating stats
     return {
       totalTasks: 0,
       completedTasks: 0,
@@ -195,8 +195,8 @@ export async function getTodaysTasksByMember(memberId: TeamMember): Promise<Task
       task.status !== 'completed' &&
       (!task.dueDate || (task.dueDate >= today && task.dueDate < tomorrow))
     );
-  } catch (error) {
-    console.error('Error getting today\'s tasks:', error);
+  } catch {
+    // Error getting today's tasks
     return [];
   }
 }
@@ -225,13 +225,13 @@ export async function createDailyLog(data: {
       ]);
 
     if (error) {
-      console.error('Error creating daily log:', error);
+      // Error creating daily log
       return false;
     }
 
     return true;
-  } catch (error) {
-    console.error('Error creating daily log:', error);
+  } catch {
+    // Error creating daily log
     return false;
   }
 }

@@ -17,8 +17,7 @@ import {
   Target, 
   TrendingUp,
   User,
-  LogIn,
-  LogOut
+  LogIn
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { SimpleTaskForm } from './simple-task-form';
@@ -35,7 +34,7 @@ export function MemberPage({ memberId }: MemberPageProps) {
   const [showCheckIn, setShowCheckIn] = useState(false);
   const [showStatusUpdate, setShowStatusUpdate] = useState(false);
   
-  const { teamMembers, getTasksByMember, getTodaysTasks, stats } = useTeamStore();
+  const { teamMembers, getTasksByMember, getTodaysTasks } = useTeamStore();
   
   const member = teamMembers.find(m => m.id === memberId);
   const allTasks = getTasksByMember(memberId);
@@ -129,7 +128,7 @@ export function MemberPage({ memberId }: MemberPageProps) {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Today's Tasks</CardTitle>
+            <CardTitle className="text-sm font-medium">Today&apos;s Tasks</CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -180,7 +179,7 @@ export function MemberPage({ memberId }: MemberPageProps) {
         <TabsContent value="today" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Today's Focus</CardTitle>
+              <CardTitle>Today&apos;s Focus</CardTitle>
               <CardDescription>
                 Tasks planned for {format(new Date(), 'EEEE, MMMM dd, yyyy')}
               </CardDescription>

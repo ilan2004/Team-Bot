@@ -105,7 +105,7 @@ export function CheckInDialog({ open, onOpenChange, memberId }: CheckInDialogPro
           {/* Tasks Section */}
           {checkType === 'check-in' ? (
             <div className="space-y-2">
-              <Label htmlFor="plannedTasks">Today's Planned Tasks</Label>
+              <Label htmlFor="plannedTasks">Today&apos;s Planned Tasks</Label>
               <Textarea
                 id="plannedTasks"
                 value={plannedTasks}
