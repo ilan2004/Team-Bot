@@ -103,14 +103,14 @@ export const sendSignInOutViDatabase = async (data: SignInOutData): Promise<bool
     });
 
     if (success) {
-      console.log(`Daily log created for ${data.member.name} - ${data.isSignIn ? 'check-in' : 'check-out'}`);
+      // Daily log created successfully
       return true;
     } else {
-      console.error('Failed to create daily log entry');
+      // Failed to create daily log entry
       return false;
     }
-  } catch (error) {
-    console.error('Error sending sign-in/out via database:', error);
+  } catch {
+    // Error sending sign-in/out via database
     return false;
   }
 };
@@ -132,7 +132,7 @@ export const sendToMember = async (data: SignInOutData): Promise<boolean> => {
   const memberPhone = WHATSAPP_CONFIG.MEMBER_PHONES[data.member.id];
   
   if (!memberPhone) {
-    console.warn(`No phone number configured for ${data.member.name}`);
+    // No phone number configured for member
     return false;
   }
   

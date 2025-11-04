@@ -7,17 +7,13 @@ import {
   CheckIn, 
   TeamStats, 
   TestFlightMilestone,
-  AvailabilityStatus,
-  MoodLevel 
+  AvailabilityStatus
 } from '@/types';
 import {
   fetchTasks,
   fetchTasksByMember,
   createTask as apiCreateTask,
-  updateTask as apiUpdateTask,
-  deleteTask as apiDeleteTask,
   calculateRealTimeStats,
-  getTodaysTasksByMember,
   subscribeToTasks
 } from '@/lib/api';
 
@@ -346,8 +342,8 @@ export const useTeamStore = create<TeamStore>()(
           const tasks = await fetchTasks();
           set({ tasks });
           get().calculateStats();
-        } catch (error) {
-          console.error('Failed to load tasks from database:', error);
+        } catch {
+          // Failed to load tasks from database
         }
       },
 
@@ -362,17 +358,17 @@ export const useTeamStore = create<TeamStore>()(
               tasks: [...state.tasks, ...newTasks]
             };
           });
-        } catch (error) {
-          console.error('Failed to load tasks for member:', error);
+        } catch {
+          // Failed to load tasks for member
         }
       },
 
       syncWithDatabase: async () => {
         try {
           await get().loadTasksFromDatabase();
-          console.log('Successfully synced with database');
-        } catch (error) {
-          console.error('Failed to sync with database:', error);
+          // Successfully synced with database
+        } catch {
+          // Failed to sync with database
         }
       },
 
