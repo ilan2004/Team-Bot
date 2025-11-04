@@ -119,18 +119,19 @@ export default function AppSidebar() {
       </SidebarContent>
       
       <SidebarFooter>
-        <div className="p-4 space-y-2">
-          <div className="text-xs text-muted-foreground text-center">
+        <div className="p-2 sm:p-4 space-y-2">
+          <div className="text-xs text-muted-foreground text-center group-data-[collapsible=icon]:hidden">
             TestFlight Progress
           </div>
-          <div className="flex items-center justify-center gap-2">
-            <BarChart3 className="h-4 w-4" />
-            <Badge variant="secondary">
+          <div className="flex items-center justify-center gap-2 group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:gap-1">
+            <BarChart3 className="h-4 w-4 flex-shrink-0" />
+            <Badge variant="secondary" className="text-xs px-1.5 py-0.5 group-data-[collapsible=icon]:px-1">
               {Math.round(stats.testFlightProgress)}%
             </Badge>
           </div>
-          <div className="text-xs text-center text-muted-foreground">
-            {stats.daysUntilDeadline} days remaining
+          <div className="text-xs text-center text-muted-foreground group-data-[collapsible=icon]:hidden">
+            <span className="block sm:inline">{stats.daysUntilDeadline} days</span>
+            <span className="block sm:inline sm:ml-1">remaining</span>
           </div>
         </div>
       </SidebarFooter>
