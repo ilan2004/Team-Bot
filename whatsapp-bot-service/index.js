@@ -113,27 +113,55 @@ class WhatsAppBot {
     }
   }
 
-  async checkForTaskUpdates() {
+  async checkForUpdates() {
     try {
-      console.log('Checking for task updates...')
+      console.log('Checking for updates...')
       
       // Get tasks updated since last check
-      const { data: tasks, error } = await supabase
+      const { data: tasks, error: tasksError } = await supabase
         .from('tasks')
         .select('*')
         .gte('updated_at', this.lastCheck.toISOString())
         .order('updated_at', { ascending: false })
 
-      if (error) {
-        console.error('Error fetching tasks:', error)
-        return
-      }
-
-      if (tasks && tasks.length > 0) {
+      if (tasksError) {
+        console.error('Error fetching tasks:', tasksError)
+      } else if (tasks && tasks.length > 0) {
         console.log(`Found ${tasks.length} task updates`)
-        
         for (const task of tasks) {
           await this.processTaskUpdate(task)
+        }
+      }
+
+      // Get availability changes since last check
+      const { data: availability, error: availabilityError } = await supabase
+        .from('availability')
+        .select('*')
+        .gte('updated_at', this.lastCheck.toISOString())
+        .order('updated_at', { ascending: false })
+
+      if (availabilityError) {
+        console.error('Error fetching availability:', availabilityError)
+      } else if (availability && availability.length > 0) {
+        console.log(`Found ${availability.length} availability updates`)
+        for (const avail of availability) {
+          await this.processAvailabilityUpdate(avail)
+        }
+      }
+
+      // Get daily logs since last check (check-ins/check-outs)
+      const { data: dailyLogs, error: logsError } = await supabase
+        .from('daily_logs')
+        .select('*')
+        .gte('created_at', this.lastCheck.toISOString())
+        .order('created_at', { ascending: false })
+
+      if (logsError) {
+        console.error('Error fetching daily logs:', logsError)
+      } else if (dailyLogs && dailyLogs.length > 0) {
+        console.log(`Found ${dailyLogs.length} daily log updates`)
+        for (const log of dailyLogs) {
+          await this.processDailyLogUpdate(log)
         }
       }
 
@@ -141,7 +169,7 @@ class WhatsAppBot {
       this.lastCheck = new Date()
       
     } catch (error) {
-      console.error('Error checking for task updates:', error)
+      console.error('Error checking for updates:', error)
     }
   }
 
@@ -159,7 +187,7 @@ class WhatsAppBot {
       
       if (isNewTask && !task.completed) {
         // New task added
-        message = `${memberName} added task: ${task.title}`
+        message = `📋 ${memberName} added task: ${task.title}`
       } else if (task.completed && task.completed_at) {
         // Task completed
         const completedAt = new Date(task.completed_at)
@@ -167,7 +195,7 @@ class WhatsAppBot {
         
         // Only send completion message if completed recently
         if (completionTimeDiff < (POLLING_INTERVAL * 60 * 1000)) {
-          message = `${memberName} completed task: ${task.title}`
+          message = `✅ ${memberName} completed task: ${task.title}`
         }
       }
       
@@ -181,6 +209,105 @@ class WhatsAppBot {
     }
   }
 
+  async processAvailabilityUpdate(availability) {
+    try {
+      const memberName = MEMBER_DISPLAY_NAMES[availability.member_name]
+      const startDate = new Date(availability.start_date).toLocaleDateString()
+      const endDate = new Date(availability.end_date).toLocaleDateString()
+      
+      // Check if this is a recent update
+      const timeDiff = Date.now() - new Date(availability.updated_at).getTime()
+      const isRecentUpdate = timeDiff < (POLLING_INTERVAL * 60 * 1000)
+      
+      if (!isRecentUpdate) return
+      
+      let statusIcon = ''
+      let statusLabel = ''
+      
+      switch (availability.status) {
+        case 'leave':
+          statusIcon = '🏖️'
+          statusLabel = 'on leave'
+          break
+        case 'exam':
+          statusIcon = '📚'
+          statusLabel = 'taking exams'
+          break
+        case 'busy':
+          statusIcon = '⚡'
+          statusLabel = 'busy'
+          break
+        case 'sick':
+          statusIcon = '🤒'
+          statusLabel = 'sick'
+          break
+        default:
+          statusIcon = '✅'
+          statusLabel = 'available'
+      }
+      
+      let message = `${statusIcon} ${memberName} is ${statusLabel}`
+      
+      if (startDate === endDate) {
+        message += ` today`
+      } else {
+        message += ` from ${startDate} to ${endDate}`
+      }
+      
+      if (availability.reason) {
+        message += ` (${availability.reason})`
+      }
+      
+      await this.sendMessage(message)
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+    } catch (error) {
+      console.error('Error processing availability update:', error)
+    }
+  }
+
+  async processDailyLogUpdate(log) {
+    try {
+      const memberName = MEMBER_DISPLAY_NAMES[log.member_name]
+      
+      // Check if this is a recent update
+      const timeDiff = Date.now() - new Date(log.created_at).getTime()
+      const isRecentUpdate = timeDiff < (POLLING_INTERVAL * 60 * 1000)
+      
+      if (!isRecentUpdate) return
+      
+      let message = ''
+      
+      if (log.log_type === 'check_in') {
+        message = `🌅 ${memberName} started the day`
+        
+        if (log.tasks_planned && log.tasks_planned.length > 0) {
+          message += `\nPlanned tasks: ${log.tasks_planned.join(', ')}`
+        }
+      } else if (log.log_type === 'check_out') {
+        message = `🌙 ${memberName} finished the day`
+        
+        if (log.tasks_completed && log.tasks_completed.length > 0) {
+          message += `\nCompleted: ${log.tasks_completed.join(', ')}`
+        } else {
+          message += `\nCompleted: No tasks finished today`
+        }
+        
+        if (log.tomorrow_priority) {
+          message += `\nTomorrow's focus: ${log.tomorrow_priority}`
+        }
+      }
+      
+      if (message) {
+        await this.sendMessage(message)
+        await new Promise(resolve => setTimeout(resolve, 1000))
+      }
+      
+    } catch (error) {
+      console.error('Error processing daily log update:', error)
+    }
+  }
+
   startPolling() {
     // Create cron job for polling every X minutes
     const cronExpression = `*/${POLLING_INTERVAL} * * * *` // Every X minutes
@@ -188,12 +315,12 @@ class WhatsAppBot {
     console.log(`Starting polling every ${POLLING_INTERVAL} minutes...`)
     
     cron.schedule(cronExpression, () => {
-      this.checkForTaskUpdates()
+      this.checkForUpdates()
     })
     
     // Also run initial check
     setTimeout(() => {
-      this.checkForTaskUpdates()
+      this.checkForUpdates()
     }, 10000) // Wait 10 seconds after startup
   }
 }
