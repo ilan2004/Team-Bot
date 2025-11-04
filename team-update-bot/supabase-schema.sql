@@ -39,7 +39,59 @@ CREATE TRIGGER set_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION public.handle_updated_at();
 
--- Create an index for better performance
+-- Create daily_logs table for check-in/check-out tracking
+CREATE TABLE IF NOT EXISTS public.daily_logs (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    member_name TEXT NOT NULL CHECK (member_name IN ('ilan', 'midlaj', 'hysam', 'alan')),
+    log_type TEXT NOT NULL CHECK (log_type IN ('check_in', 'check_out')),
+    tasks_planned TEXT[], -- For check-in
+    tasks_completed TEXT[], -- For check-out
+    tomorrow_priority TEXT, -- For check-out
+    mood INTEGER CHECK (mood >= 1 AND mood <= 5),
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::TEXT, NOW()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::TEXT, NOW()) NOT NULL
+);
+
+-- Create availability table for status tracking
+CREATE TABLE IF NOT EXISTS public.availability (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    member_name TEXT NOT NULL CHECK (member_name IN ('ilan', 'midlaj', 'hysam', 'alan')),
+    status TEXT NOT NULL CHECK (status IN ('available', 'leave', 'exam', 'busy', 'sick')),
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    reason TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::TEXT, NOW()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::TEXT, NOW()) NOT NULL
+);
+
+-- Enable Row Level Security (RLS) for new tables
+ALTER TABLE public.daily_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.availability ENABLE ROW LEVEL SECURITY;
+
+-- Create policies to allow all operations
+CREATE POLICY "Allow all operations on daily_logs" ON public.daily_logs
+    FOR ALL USING (true);
+
+CREATE POLICY "Allow all operations on availability" ON public.availability
+    FOR ALL USING (true);
+
+-- Create triggers for updated_at columns
+CREATE TRIGGER set_updated_at_daily_logs
+    BEFORE UPDATE ON public.daily_logs
+    FOR EACH ROW
+    EXECUTE FUNCTION public.handle_updated_at();
+
+CREATE TRIGGER set_updated_at_availability
+    BEFORE UPDATE ON public.availability
+    FOR EACH ROW
+    EXECUTE FUNCTION public.handle_updated_at();
+
+-- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_tasks_assigned_member ON public.tasks(assigned_member);
 CREATE INDEX IF NOT EXISTS idx_tasks_created_at ON public.tasks(created_at);
 CREATE INDEX IF NOT EXISTS idx_tasks_updated_at ON public.tasks(updated_at);
+CREATE INDEX IF NOT EXISTS idx_daily_logs_member ON public.daily_logs(member_name);
+CREATE INDEX IF NOT EXISTS idx_daily_logs_created_at ON public.daily_logs(created_at);
+CREATE INDEX IF NOT EXISTS idx_availability_member ON public.availability(member_name);
+CREATE INDEX IF NOT EXISTS idx_availability_dates ON public.availability(start_date, end_date);
