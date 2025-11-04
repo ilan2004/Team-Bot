@@ -12,8 +12,15 @@ import { CheckCircle, Clock, Users, Target } from 'lucide-react'
 export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
+  const [configError, setConfigError] = useState(false)
 
   useEffect(() => {
+    // Check if environment variables are configured
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      setConfigError(true)
+      setLoading(false)
+      return
+    }
     fetchTasks()
   }, [])
 
@@ -36,6 +43,20 @@ export default function Home() {
   const completedTasks = getCompletedTasks(tasks)
   const totalTasks = tasks.length
   const completionPercentage = totalTasks > 0 ? Math.round((completedTasks.length / totalTasks) * 100) : 0
+
+  if (configError) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <h2 className="text-xl font-bold text-red-600 mb-2">Configuration Error</h2>
+            <p className="text-gray-600">Please configure your Supabase environment variables.</p>
+            <p className="text-sm text-gray-500 mt-2">Check your deployment settings for NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   if (loading) {
     return (
