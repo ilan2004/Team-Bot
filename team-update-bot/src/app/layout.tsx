@@ -17,7 +17,27 @@ const META_THEME_COLORS = {
 
 export const metadata: Metadata = {
   title: 'Team Update Bot - Nudge iOS Team',
-  description: 'Comprehensive task management system with WhatsApp notifications for team collaboration'
+  description: 'Comprehensive task management system with WhatsApp notifications for team collaboration',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Team Update Bot',
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  openGraph: {
+    type: 'website',
+    siteName: 'Team Update Bot',
+    title: 'Team Update Bot - Nudge iOS Team',
+    description: 'Comprehensive task management system with WhatsApp notifications for team collaboration',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Team Update Bot - Nudge iOS Team',
+    description: 'Comprehensive task management system with WhatsApp notifications for team collaboration',
+  },
 };
 
 export const viewport: Viewport = {
@@ -36,6 +56,27 @@ export default async function RootLayout({
   return (
     <html lang='en' suppressHydrationWarning>
       <head>
+        <meta name='application-name' content='Team Update Bot' />
+        <meta name='apple-mobile-web-app-capable' content='yes' />
+        <meta name='apple-mobile-web-app-status-bar-style' content='default' />
+        <meta name='apple-mobile-web-app-title' content='Team Update Bot' />
+        <meta name='description' content='Comprehensive task management system with WhatsApp notifications for team collaboration' />
+        <meta name='format-detection' content='telephone=no' />
+        <meta name='mobile-web-app-capable' content='yes' />
+        <meta name='msapplication-config' content='/icons/browserconfig.xml' />
+        <meta name='msapplication-TileColor' content='#09090b' />
+        <meta name='msapplication-tap-highlight' content='no' />
+        
+        <link rel='apple-touch-icon' href='/icons/icon-152x152.svg' />
+        <link rel='apple-touch-icon' sizes='152x152' href='/icons/icon-152x152.svg' />
+        <link rel='apple-touch-icon' sizes='180x180' href='/icons/icon-192x192.svg' />
+        <link rel='apple-touch-icon' sizes='167x167' href='/icons/icon-192x192.svg' />
+        
+        <link rel='icon' type='image/svg+xml' href='/icons/icon-192x192.svg' />
+        <link rel='manifest' href='/manifest.json' />
+        <link rel='mask-icon' href='/icons/icon-192x192.svg' color='#09090b' />
+        <link rel='shortcut icon' href='/icons/icon-192x192.svg' />
+        
         <script
           dangerouslySetInnerHTML={{
             __html: `
