@@ -19,11 +19,29 @@ export function convertDbTaskToTask(dbTask: DatabaseTask): Task {
 
 // Convert app task to database task format
 export function convertTaskToDbTask(task: Partial<Task>): Partial<DatabaseTask> {
-  return {
+  const dbTask: Partial<DatabaseTask> = {
     title: task.title,
     completed: task.status === 'completed',
     assigned_member: task.assignee,
   };
+  
+  // Set completed_at timestamp when task is completed
+  if (task.status === 'completed' && task.completedAt) {
+    dbTask.completed_at = task.completedAt.toISOString();
+  } else if (task.status === 'completed' && !task.completedAt) {
+    dbTask.completed_at = new Date().toISOString();
+  } else if (task.status !== 'completed') {
+    dbTask.completed_at = null;
+  }
+  
+  // Always update the updated_at timestamp when making changes
+  if (task.updatedAt) {
+    dbTask.updated_at = task.updatedAt.toISOString();
+  } else {
+    dbTask.updated_at = new Date().toISOString();
+  }
+  
+  return dbTask;
 }
 
 // Fetch all tasks from database

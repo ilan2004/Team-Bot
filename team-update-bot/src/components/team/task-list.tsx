@@ -65,16 +65,16 @@ export function TaskList({ tasks }: TaskListProps) {
     animation: 'Animation',
   };
 
-  const handleStatusChange = (taskId: string, completed: boolean) => {
+  const handleStatusChange = async (taskId: string, completed: boolean) => {
     if (completed) {
-      completeTask(taskId);
+      await completeTask(taskId);
     } else {
-      updateTask(taskId, { status: 'todo' });
+      await updateTask(taskId, { status: 'todo' });
     }
   };
 
-  const handleStatusUpdate = (taskId: string, status: Task['status']) => {
-    updateTask(taskId, { status });
+  const handleStatusUpdate = async (taskId: string, status: Task['status']) => {
+    await updateTask(taskId, { status });
   };
 
   const handleDelete = (taskId: string) => {

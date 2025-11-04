@@ -13,6 +13,7 @@ import {
   fetchTasks,
   fetchTasksByMember,
   createTask as apiCreateTask,
+  updateTask as apiUpdateTask,
   calculateRealTimeStats,
   subscribeToTasks
 } from '@/lib/api';
@@ -35,8 +36,8 @@ interface TeamStore {
   
   // Actions
   addTask: (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => void;
-  updateTask: (taskId: string, updates: Partial<Task>) => void;
-  completeTask: (taskId: string) => void;
+  updateTask: (taskId: string, updates: Partial<Task>) => Promise<void>;
+  completeTask: (taskId: string) => Promise<void>;
   deleteTask: (taskId: string) => void;
   
   // Team member actions
@@ -197,23 +198,37 @@ export const useTeamStore = create<TeamStore>()(
         get().calculateStats();
       },
 
-      updateTask: (taskId, updates) => {
-        set((state) => ({
-          tasks: state.tasks.map((task) =>
-            task.id === taskId
-              ? { ...task, ...updates, updatedAt: new Date() }
-              : task
-          ),
-        }));
+      updateTask: async (taskId, updates) => {
+        // Update in database first
+        const updatedTask = await apiUpdateTask(taskId, updates);
+        
+        if (updatedTask) {
+          // Update successful, update local state
+          set((state) => ({
+            tasks: state.tasks.map((task) =>
+              task.id === taskId ? updatedTask : task
+            ),
+          }));
+        } else {
+          // Database update failed, fall back to local update
+          set((state) => ({
+            tasks: state.tasks.map((task) =>
+              task.id === taskId
+                ? { ...task, ...updates, updatedAt: new Date() }
+                : task
+            ),
+          }));
+        }
         get().calculateStats();
       },
 
-      completeTask: (taskId) => {
+      completeTask: async (taskId) => {
         const task = get().tasks.find(t => t.id === taskId);
         if (task) {
-          get().updateTask(taskId, {
+          await get().updateTask(taskId, {
             status: 'completed',
             completedAt: new Date(),
+            updatedAt: new Date(),
           });
         }
       },
