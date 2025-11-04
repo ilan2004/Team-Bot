@@ -2,14 +2,17 @@
 
 import React from 'react';
 import { useTeamStore } from '@/store/team-store';
+import { SimpleTaskForm } from './simple-task-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { CalendarDays, Clock, Target, Users, TrendingUp, AlertCircle } from 'lucide-react';
+import { CalendarDays, Clock, Target, Users, TrendingUp, AlertCircle, Plus } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import { TestFlightMilestones } from './test-flight-milestones';
 import { TeamStatusGrid } from './team-status-grid';
+import { TeamActivityChart } from './team-activity-chart';
 
 export function TeamDashboard() {
   const { 
@@ -20,6 +23,9 @@ export function TeamDashboard() {
     loadTasksFromDatabase, 
     subscribeToRealTimeUpdates 
   } = useTeamStore();
+
+  const [showTaskForm, setShowTaskForm] = React.useState(false);
+  const [currentUser] = React.useState<'ilan' | 'midlaj' | 'hysam' | 'alan'>('ilan'); // Default to Ilan, can be made dynamic
 
   const testFlightDate = new Date('2025-12-04');
   const currentDate = new Date();
@@ -63,7 +69,15 @@ export function TeamDashboard() {
             {format(currentDate, 'EEEE, MMMM dd, yyyy • HH:mm')}
           </p>
         </div>
-        <div className="flex items-center justify-start sm:justify-end">
+        <div className="flex items-center justify-start sm:justify-end gap-2">
+          <Button 
+            onClick={() => setShowTaskForm(true)}
+            size="sm"
+            className="hidden sm:flex"
+          >
+            <Plus className="w-4 h-4 mr-1" />
+            Quick Task
+          </Button>
           <Badge variant="secondary" className="text-sm sm:text-lg px-2 py-1 sm:px-3 flex items-center whitespace-nowrap">
             <CalendarDays className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
             <span className="truncate">
@@ -109,7 +123,7 @@ export function TeamDashboard() {
       <TeamStatusGrid members={teamMembers} />
 
       {/* Stats Overview */}
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Tasks Overview</CardTitle>
@@ -152,25 +166,31 @@ export function TeamDashboard() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Progress Trend</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              {Math.round(stats.testFlightProgress)}%
-            </div>
-            <p className="text-xs text-muted-foreground">
-              test flight ready
-            </p>
-            <Progress value={stats.testFlightProgress} className="mt-2 h-2" />
-          </CardContent>
-        </Card>
       </div>
 
       {/* Test Flight Milestones */}
       <TestFlightMilestones milestones={testFlightMilestones} />
+
+      {/* Team Activity Chart */}
+      <TeamActivityChart />
+
+      {/* Quick Task Form */}
+      <SimpleTaskForm 
+        open={showTaskForm}
+        onOpenChange={setShowTaskForm}
+        defaultAssignee={currentUser}
+      />
+
+      {/* Floating Action Button for Mobile */}
+      <div className="fixed bottom-6 right-6 sm:hidden">
+        <Button
+          onClick={() => setShowTaskForm(true)}
+          size="lg"
+          className="h-14 w-14 rounded-full shadow-lg"
+        >
+          <Plus className="w-6 h-6" />
+        </Button>
+      </div>
     </div>
   );
 }

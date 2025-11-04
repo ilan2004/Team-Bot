@@ -115,10 +115,10 @@ export function TeamStatusGrid({ members }: TeamStatusGridProps) {
 
       // Record sign in/out in local store
       if (isSignIn) {
-        checkIn(member.id, 3, [], `Signed in for ${new Date().toDateString()}`);
+        checkIn(member.id, [], `Signed in for ${new Date().toDateString()}`);
         localStorage.setItem(`lastSignIn_${member.id}`, new Date().toDateString());
       } else {
-        checkOut(member.id, 3, [], [], `Signed out for ${new Date().toDateString()}`);
+        checkOut(member.id, [], [], `Signed out for ${new Date().toDateString()}`);
         localStorage.removeItem(`lastSignIn_${member.id}`);
       }
 
@@ -169,7 +169,6 @@ export function TeamStatusGrid({ members }: TeamStatusGridProps) {
     sick: 'Sick',
   };
 
-  const moodEmojis = ['😟', '🙁', '😐', '🙂', '😄'];
 
   return (
     <Card>
@@ -203,11 +202,6 @@ export function TeamStatusGrid({ members }: TeamStatusGridProps) {
                       </p>
                     </div>
                   </div>
-                  {member.currentMood && (
-                    <div className="text-base sm:text-lg flex-shrink-0" title={`Mood: ${member.currentMood}/5`}>
-                      {moodEmojis[member.currentMood - 1]}
-                    </div>
-                  )}
                 </div>
 
                 <div className="flex items-center justify-start">
@@ -225,15 +219,6 @@ export function TeamStatusGrid({ members }: TeamStatusGridProps) {
                     <span className="truncate pr-2">Today's Tasks</span>
                     <span className="font-medium flex-shrink-0">{todaysTasks.length}</span>
                   </div>
-                  
-                  {member.weeklyTarget && (
-                    <div className="space-y-1">
-                      <div className="flex justify-between items-center text-xs text-muted-foreground">
-                        <span className="truncate pr-2">Weekly Progress</span>
-                        <span className="flex-shrink-0">{member.weeklyProgress}/{member.weeklyTarget}h</span>
-                      </div>
-                    </div>
-                  )}
                 </div>
 
                 <Button 

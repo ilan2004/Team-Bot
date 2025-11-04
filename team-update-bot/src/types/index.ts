@@ -83,13 +83,10 @@ export interface TeamMemberProfile {
   role: string;
   avatar?: string;
   status: AvailabilityStatus;
-  currentMood?: MoodLevel;
   leaveStart?: Date;
   leaveEnd?: Date;
   leaveReason?: string;
   todaysTasks: string[]; // Task IDs
-  weeklyTarget?: number; // Hours or points
-  weeklyProgress?: number;
 }
 
 export interface CheckIn {
@@ -97,7 +94,6 @@ export interface CheckIn {
   memberId: TeamMember;
   date: Date;
   type: 'check-in' | 'check-out';
-  mood: MoodLevel;
   plannedTasks?: string[]; // For check-in
   completedTasks?: string[]; // For check-out
   blockers?: string[];

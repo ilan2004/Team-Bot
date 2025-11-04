@@ -45,11 +45,10 @@ interface TeamStore {
   
   // Team member actions
   updateMemberStatus: (memberId: TeamMember, status: AvailabilityStatus, leaveDetails?: { start?: Date; end?: Date; reason?: string }) => void;
-  updateMemberMood: (memberId: TeamMember, mood: MoodLevel) => void;
   
   // Check-in actions
-  checkIn: (memberId: TeamMember, mood: MoodLevel, plannedTasks?: string[], notes?: string) => void;
-  checkOut: (memberId: TeamMember, mood: MoodLevel, completedTasks?: string[], blockers?: string[], notes?: string) => void;
+  checkIn: (memberId: TeamMember, plannedTasks?: string[], notes?: string) => void;
+  checkOut: (memberId: TeamMember, completedTasks?: string[], blockers?: string[], notes?: string) => void;
   
   // Milestone actions
   updateMilestoneProgress: (milestoneId: string, progress: number) => void;
@@ -73,8 +72,6 @@ const defaultTeamMembers: TeamMemberProfile[] = [
     role: 'Development (iOS App Development & Backend)',
     status: 'available',
     todaysTasks: [],
-    weeklyTarget: 40,
-    weeklyProgress: 0,
   },
   {
     id: 'midlaj',
@@ -82,8 +79,6 @@ const defaultTeamMembers: TeamMemberProfile[] = [
     role: 'Animation (UI Animations & Interactions)',
     status: 'available',
     todaysTasks: [],
-    weeklyTarget: 35,
-    weeklyProgress: 0,
   },
   {
     id: 'hysam',
@@ -91,8 +86,6 @@ const defaultTeamMembers: TeamMemberProfile[] = [
     role: 'Design (UI/UX Design & Assets)',
     status: 'available',
     todaysTasks: [],
-    weeklyTarget: 35,
-    weeklyProgress: 0,
   },
   {
     id: 'alan',
@@ -100,8 +93,6 @@ const defaultTeamMembers: TeamMemberProfile[] = [
     role: 'Research (R&D & Technical Research)',
     status: 'available',
     todaysTasks: [],
-    weeklyTarget: 30,
-    weeklyProgress: 0,
   },
 ];
 
@@ -254,37 +245,27 @@ export const useTeamStore = create<TeamStore>()(
         }));
       },
 
-      updateMemberMood: (memberId, mood) => {
-        set((state) => ({
-          teamMembers: state.teamMembers.map((member) =>
-            member.id === memberId ? { ...member, currentMood: mood } : member
-          ),
-        }));
-      },
 
-      checkIn: (memberId, mood, plannedTasks, notes) => {
+      checkIn: (memberId, plannedTasks, notes) => {
         const checkIn: CheckIn = {
           id: crypto.randomUUID(),
           memberId,
           date: new Date(),
           type: 'check-in',
-          mood,
           plannedTasks,
           notes,
         };
         set((state) => ({
           checkIns: [...state.checkIns, checkIn],
         }));
-        get().updateMemberMood(memberId, mood);
       },
 
-      checkOut: (memberId, mood, completedTasks, blockers, notes) => {
+      checkOut: (memberId, completedTasks, blockers, notes) => {
         const checkOut: CheckIn = {
           id: crypto.randomUUID(),
           memberId,
           date: new Date(),
           type: 'check-out',
-          mood,
           completedTasks,
           blockers,
           notes,
@@ -292,7 +273,6 @@ export const useTeamStore = create<TeamStore>()(
         set((state) => ({
           checkIns: [...state.checkIns, checkOut],
         }));
-        get().updateMemberMood(memberId, mood);
       },
 
       updateMilestoneProgress: (milestoneId, progress) => {
@@ -339,7 +319,10 @@ export const useTeamStore = create<TeamStore>()(
           
           const overallProgress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
           
-          const testFlightProgress = testFlightMilestones.reduce((acc, milestone) => acc + milestone.progress, 0) / testFlightMilestones.length;
+          // Calculate test flight progress from all milestones
+          const testFlightProgress = testFlightMilestones.length > 0 
+            ? testFlightMilestones.reduce((acc, milestone) => acc + milestone.progress, 0) / testFlightMilestones.length
+            : 0;
           
           const daysUntilDeadline = Math.ceil((new Date('2025-12-04').getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
 
@@ -403,6 +386,7 @@ export const useTeamStore = create<TeamStore>()(
     }),
     {
       name: 'team-store',
+      version: 4, // Increment version after removing export milestone
     }
   )
 );

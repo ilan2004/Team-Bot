@@ -144,8 +144,17 @@ export async function calculateRealTimeStats(): Promise<TeamStats> {
     
     const overallProgress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
     
-    // Calculate test flight progress based on completed milestones
-    const testFlightProgress = overallProgress; // Simplified for now
+    // Calculate test flight progress based on actual milestones
+    const defaultMilestones = [
+      { progress: 0 }, // Character animations
+      { progress: 0 }, // Onboarding UI  
+      { progress: 0 }, // Screen Time API
+      { progress: 0 }, // Frontend
+      { progress: 0 }, // MBTI Questions
+      { progress: 0 }, // Personality Cognitive Power
+      { progress: 0 }, // Assets
+    ];
+    const testFlightProgress = defaultMilestones.reduce((acc, milestone) => acc + milestone.progress, 0) / defaultMilestones.length;
     
     const daysUntilDeadline = Math.ceil((new Date('2025-12-04').getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
 

@@ -21,7 +21,7 @@ import {
   LogOut
 } from 'lucide-react';
 import { format } from 'date-fns';
-import { TaskForm } from './task-form';
+import { SimpleTaskForm } from './simple-task-form';
 import { TaskList } from './task-list';
 import { CheckInDialog } from './check-in-dialog';
 import { StatusUpdateDialog } from './status-update-dialog';
@@ -72,7 +72,6 @@ export function MemberPage({ memberId }: MemberPageProps) {
     sick: 'Sick',
   };
 
-  const moodEmojis = ['😟', '🙁', '😐', '🙂', '😄'];
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
@@ -94,12 +93,6 @@ export function MemberPage({ memberId }: MemberPageProps) {
                 <div className="w-2 h-2 rounded-full bg-white mr-1" />
                 {statusLabels[member.status]}
               </Badge>
-              {member.currentMood && (
-                <div className="flex items-center space-x-1">
-                  <span className="text-lg">{moodEmojis[member.currentMood - 1]}</span>
-                  <span className="text-sm text-muted-foreground">Mood: {member.currentMood}/5</span>
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -207,29 +200,7 @@ export function MemberPage({ memberId }: MemberPageProps) {
         </TabsContent>
         
         <TabsContent value="progress" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Weekly Progress</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span>Target Hours</span>
-                    <span>{member.weeklyTarget || 0}h</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Current Progress</span>
-                    <span>{member.weeklyProgress || 0}h</span>
-                  </div>
-                  <Progress 
-                    value={member.weeklyTarget ? ((member.weeklyProgress || 0) / member.weeklyTarget) * 100 : 0} 
-                    className="h-2"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
+          <div className="grid gap-4 md:grid-cols-1">
             <Card>
               <CardHeader>
                 <CardTitle>Task Statistics</CardTitle>
@@ -265,7 +236,7 @@ export function MemberPage({ memberId }: MemberPageProps) {
       </Tabs>
 
       {/* Dialogs */}
-      <TaskForm 
+      <SimpleTaskForm 
         open={showTaskForm} 
         onOpenChange={setShowTaskForm}
         defaultAssignee={memberId}
