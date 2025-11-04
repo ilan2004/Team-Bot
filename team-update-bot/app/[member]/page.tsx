@@ -10,7 +10,7 @@ import { getTasksByMember, getTodaysTasks } from '@/lib/utils'
 import { TaskItem } from '@/components/TaskItem'
 import { AddTaskForm } from '@/components/AddTaskForm'
 import { WeeklyTargets } from '@/components/WeeklyTargets'
-import { CalendarDays, CheckSquare, User } from 'lucide-react'
+import { CalendarDays, CheckSquare, User, Plus } from 'lucide-react'
 import { notFound } from 'next/navigation'
 
 export default function MemberPage() {
@@ -144,85 +144,113 @@ export default function MemberPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <User className="h-8 w-8" />
-          <h1 className="text-3xl font-bold text-gray-900">{MEMBER_DISPLAY_NAMES[memberName]}'s Tasks</h1>
-          <Badge className={`$ {MEMBER_COLORS[memberName]} text-white`}>
-            {memberTasks.length} tasks
-          </Badge>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div className="container mx-auto px-4 py-6 sm:py-8 max-w-6xl">
+        {/* Header */}
+        <div className="mb-6 sm:mb-8 text-center sm:text-left">
+          <div className="flex flex-col sm:flex-row items-center gap-3 mb-3">
+            <div className={`flex items-center justify-center w-12 h-12 ${MEMBER_COLORS[memberName]} rounded-xl shadow-lg`}>
+              <User className="h-6 w-6 text-white" />
+            </div>
+            <div className="text-center sm:text-left">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                {MEMBER_DISPLAY_NAMES[memberName]}'s Tasks
+              </h1>
+              <div className="flex flex-wrap justify-center sm:justify-start gap-2 mt-2">
+                <Badge className={`${MEMBER_COLORS[memberName]} text-white font-semibold px-3 py-1`}>
+                  {memberTasks.length} tasks
+                </Badge>
+                <Badge variant="outline" className="px-3 py-1">
+                  Nudge Team Member
+                </Badge>
+              </div>
+            </div>
+          </div>
+          <p className="text-gray-600 text-sm sm:text-base">Manage your tasks and track weekly progress</p>
         </div>
-        <p className="text-gray-600">Manage your tasks and track weekly progress</p>
-      </div>
 
-      {/* Add New Task */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Add New Task</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <AddTaskForm member={memberName} onAddTask={handleAddTask} />
-        </CardContent>
-      </Card>
+        {/* Add New Task */}
+        <Card className="mb-6 sm:mb-8 border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-t-lg">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Plus className="h-5 w-5" />
+              Add New Task
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 sm:p-6">
+            <AddTaskForm member={memberName} onAddTask={handleAddTask} />
+          </CardContent>
+        </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Today's Tasks */}
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CalendarDays className="h-5 w-5" />
-                Today's Tasks
-                <Badge variant="outline">{todaysTasks.length}</Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {todaysTasks.length > 0 ? (
-                todaysTasks.map((task) => (
-                  <TaskItem
-                    key={task.id}
-                    task={task}
-                    onToggleComplete={handleToggleComplete}
-                    onDelete={handleDeleteTask}
-                  />
-                ))
-              ) : (
-                <div className="text-center py-6 text-gray-500">
-                  No tasks for today. Great job staying on top of things!
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* All Other Tasks */}
-          {otherTasks.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CheckSquare className="h-5 w-5" />
-                  All Tasks
-                  <Badge variant="outline">{otherTasks.length}</Badge>
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 sm:gap-8">
+          {/* Today's Tasks */}
+          <div className="xl:col-span-2 space-y-6">
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <CardHeader className="bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-t-lg">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <CalendarDays className="h-5 w-5" />
+                  Today's Tasks
+                  <Badge variant="secondary" className="bg-white bg-opacity-20 text-white border-white border-opacity-30">
+                    {todaysTasks.length}
+                  </Badge>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3 max-h-96 overflow-y-auto">
-                {otherTasks.map((task) => (
-                  <TaskItem
-                    key={task.id}
-                    task={task}
-                    onToggleComplete={handleToggleComplete}
-                    onDelete={handleDeleteTask}
-                  />
-                ))}
+              <CardContent className="p-4 sm:p-6">
+                <div className="space-y-3">
+                  {todaysTasks.length > 0 ? (
+                    todaysTasks.map((task) => (
+                      <TaskItem
+                        key={task.id}
+                        task={task}
+                        onToggleComplete={handleToggleComplete}
+                        onDelete={handleDeleteTask}
+                      />
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <CalendarDays className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                      <p className="font-medium">No tasks for today</p>
+                      <p className="text-sm">Great job staying on top of things!</p>
+                    </div>
+                  )}
+                </div>
               </CardContent>
             </Card>
-          )}
-        </div>
 
-        {/* Weekly Targets */}
-        <div>
-          <WeeklyTargets tasks={tasks} member={memberName} />
+            {/* All Other Tasks */}
+            {otherTasks.length > 0 && (
+              <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-t-lg">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <CheckSquare className="h-5 w-5" />
+                    All Tasks
+                    <Badge variant="secondary" className="bg-white bg-opacity-20 text-white border-white border-opacity-30">
+                      {otherTasks.length}
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 sm:p-6">
+                  <div className="space-y-3 max-h-96 overflow-y-auto custom-scrollbar">
+                    {otherTasks.map((task) => (
+                      <TaskItem
+                        key={task.id}
+                        task={task}
+                        onToggleComplete={handleToggleComplete}
+                        onDelete={handleDeleteTask}
+                      />
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {/* Weekly Targets */}
+          <div className="xl:col-span-1">
+            <div className="sticky top-20">
+              <WeeklyTargets tasks={tasks} member={memberName} />
+            </div>
+          </div>
         </div>
       </div>
     </div>

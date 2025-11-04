@@ -69,108 +69,110 @@ export default function Home() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Project Dashboard</h1>
-        <p className="text-gray-600">Track team progress and task completion</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div className="container mx-auto px-4 py-6 sm:py-8">
+        <div className="mb-6 sm:mb-8 text-center sm:text-left">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">Project Dashboard</h1>
+          <p className="text-gray-600 text-sm sm:text-base">Track team progress and boost productivity with Nudge</p>
+        </div>
 
-      {/* Overall Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Tasks</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
+        {/* Overall Statistics */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+          <Card className="hover:shadow-lg transition-shadow duration-200 border-0 shadow-md">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-700">Total Tasks</CardTitle>
+              <Target className="h-5 w-5 text-blue-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl sm:text-3xl font-bold text-gray-900">{totalTasks}</div>
+              <p className="text-xs text-gray-500 mt-1">All team tasks</p>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow duration-200 border-0 shadow-md">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-700">Completed</CardTitle>
+              <CheckCircle className="h-5 w-5 text-green-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl sm:text-3xl font-bold text-green-600">{completedTasks.length}</div>
+              <p className="text-xs text-gray-500 mt-1">Tasks finished</p>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow duration-200 border-0 shadow-md">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-700">In Progress</CardTitle>
+              <Clock className="h-5 w-5 text-orange-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl sm:text-3xl font-bold text-orange-600">{totalTasks - completedTasks.length}</div>
+              <p className="text-xs text-gray-500 mt-1">Tasks remaining</p>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow duration-200 border-0 shadow-md">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-700">Completion</CardTitle>
+              <Users className="h-5 w-5 text-purple-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl sm:text-3xl font-bold text-purple-600">{completionPercentage}%</div>
+              <Progress value={completionPercentage} className="mt-2 h-2" />
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Team Member Breakdown */}
+        <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-t-lg">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Users className="h-6 w-6" />
+              Team Progress
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalTasks}</div>
-            <p className="text-xs text-muted-foreground">All team tasks</p>
-          </CardContent>
-        </Card>
+          <CardContent className="p-4 sm:p-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+              {TEAM_MEMBERS.map((member) => {
+                const memberTasks = getTasksByMember(tasks, member)
+                const memberCompleted = getCompletedTasks(memberTasks)
+                const memberPercentage = memberTasks.length > 0 
+                  ? Math.round((memberCompleted.length / memberTasks.length) * 100) 
+                  : 0
+                const weeklyProgress = getWeeklyProgress(tasks, member)
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completed</CardTitle>
-            <CheckCircle className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{completedTasks.length}</div>
-            <p className="text-xs text-muted-foreground">Tasks finished</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">In Progress</CardTitle>
-            <Clock className="h-4 w-4 text-orange-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{totalTasks - completedTasks.length}</div>
-            <p className="text-xs text-muted-foreground">Tasks remaining</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completion</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{completionPercentage}%</div>
-            <Progress value={completionPercentage} className="mt-2" />
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Team Member Breakdown */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5" />
-            Team Progress
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {TEAM_MEMBERS.map((member) => {
-              const memberTasks = getTasksByMember(tasks, member)
-              const memberCompleted = getCompletedTasks(memberTasks)
-              const memberPercentage = memberTasks.length > 0 
-                ? Math.round((memberCompleted.length / memberTasks.length) * 100) 
-                : 0
-              const weeklyProgress = getWeeklyProgress(tasks, member)
-
-              return (
-                <div key={member} className="p-4 bg-gray-50 rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-semibold text-gray-900">
-                      {MEMBER_DISPLAY_NAMES[member]}
-                    </h3>
-                    <Badge 
-                      variant="secondary" 
-                      className={`${MEMBER_COLORS[member]} text-white`}
-                    >
-                      {memberPercentage}%
-                    </Badge>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm text-gray-600">
-                      <span>Total: {memberTasks.length}</span>
-                      <span>Done: {memberCompleted.length}</span>
+                return (
+                  <div key={member} className="p-4 sm:p-5 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl hover:shadow-md transition-all duration-200 cursor-pointer group">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-bold text-gray-900 text-base sm:text-lg group-hover:text-blue-600 transition-colors">
+                        {MEMBER_DISPLAY_NAMES[member]}
+                      </h3>
+                      <Badge 
+                        variant="secondary" 
+                        className={`${MEMBER_COLORS[member]} text-white font-semibold px-2 py-1 text-sm`}
+                      >
+                        {memberPercentage}%
+                      </Badge>
                     </div>
-                    <Progress value={memberPercentage} className="h-2" />
                     
-                    <div className="text-xs text-gray-500">
-                      This week: {weeklyProgress.completed}/{weeklyProgress.total}
+                    <div className="space-y-3">
+                      <div className="flex justify-between text-sm font-medium text-gray-600">
+                        <span>Total: {memberTasks.length}</span>
+                        <span>Done: {memberCompleted.length}</span>
+                      </div>
+                      <Progress value={memberPercentage} className="h-2 bg-gray-200" />
+                      
+                      <div className="text-xs text-gray-500 bg-white px-2 py-1 rounded-md">
+                        This week: {weeklyProgress.completed}/{weeklyProgress.total}
+                      </div>
                     </div>
                   </div>
-                </div>
-              )
-            })}
-          </div>
-        </CardContent>
-      </Card>
+                )
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }

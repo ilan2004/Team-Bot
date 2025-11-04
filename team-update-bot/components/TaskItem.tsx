@@ -34,33 +34,33 @@ export function TaskItem({ task, onToggleComplete, onDelete }: TaskItemProps) {
 
   return (
     <div className={cn(
-      'flex items-center space-x-3 p-3 bg-white rounded-lg border transition-all',
-      task.completed && 'bg-gray-50 opacity-75'
+      'flex items-start sm:items-center space-x-3 sm:space-x-4 p-3 sm:p-4 bg-white rounded-xl border-0 shadow-md hover:shadow-lg transition-all duration-200',
+      task.completed && 'bg-gradient-to-r from-green-50 to-gray-50 opacity-80'
     )}>
       <Checkbox
         checked={task.completed}
         onCheckedChange={handleToggle}
         disabled={isUpdating}
-        className="mt-0.5"
+        className="mt-1 sm:mt-0 w-5 h-5"
       />
       
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 space-y-1 sm:space-y-2">
         <p className={cn(
-          'text-sm font-medium text-gray-900',
+          'text-sm sm:text-base font-medium text-gray-900 leading-relaxed',
           task.completed && 'line-through text-gray-500'
         )}>
           {task.title}
         </p>
         
-        <div className="flex items-center space-x-2 mt-1">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
           <div className="flex items-center text-xs text-gray-500">
-            <Calendar className="w-3 h-3 mr-1" />
-            {formatDate(task.created_at)}
+            <Calendar className="w-3 h-3 mr-1 flex-shrink-0" />
+            <span className="truncate">{formatDate(task.created_at)}</span>
           </div>
           
           {task.completed && task.completed_at && (
-            <Badge variant="secondary" className="text-xs bg-green-100 text-green-800">
-              Completed {formatDate(task.completed_at)}
+            <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 font-medium w-fit">
+              ✓ Completed {formatDate(task.completed_at)}
             </Badge>
           )}
         </div>
@@ -70,7 +70,7 @@ export function TaskItem({ task, onToggleComplete, onDelete }: TaskItemProps) {
         variant="ghost"
         size="sm"
         onClick={() => onDelete(task.id)}
-        className="text-red-500 hover:text-red-700 hover:bg-red-50"
+        className="text-red-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition-colors flex-shrink-0"
       >
         <Trash2 className="w-4 h-4" />
       </Button>

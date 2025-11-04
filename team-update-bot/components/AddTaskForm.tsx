@@ -26,21 +26,22 @@ export function AddTaskForm({ member, onAddTask }: AddTaskFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex space-x-2">
+    <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 sm:gap-2">
       <Input
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder="Enter new task..."
-        className="flex-1"
+        className="flex-1 h-11 text-base"
         disabled={isSubmitting}
       />
       <Button 
         type="submit" 
         disabled={!title.trim() || isSubmitting}
-        size="sm"
+        size="default"
+        className="h-11 px-6 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all duration-200 font-semibold"
       >
-        <Plus className="w-4 h-4 mr-1" />
-        Add Task
+        <Plus className="w-4 h-4 mr-2" />
+        {isSubmitting ? 'Adding...' : 'Add Task'}
       </Button>
     </form>
   )

@@ -49,50 +49,59 @@ export function WeeklyTargets({ tasks, member }: WeeklyTargetsProps) {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Target className="h-5 w-5" />
+    <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+      <CardHeader className="bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-t-lg">
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <Target className="h-6 w-6" />
           Weekly Targets
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="p-4 sm:p-6 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4 text-gray-500" />
-            <span className="text-sm text-gray-600">{getWeekRange()}</span>
+            <span className="text-sm text-gray-600 font-medium">{getWeekRange()}</span>
           </div>
           <Badge 
             variant="secondary"
-            className={`${MEMBER_COLORS[member]} text-white`}
+            className={`${MEMBER_COLORS[member]} text-white font-bold px-3 py-1 text-sm`}
           >
             {weeklyProgress.percentage}%
           </Badge>
         </div>
 
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span>Progress</span>
-            <span className="font-medium">
+        <div className="space-y-3">
+          <div className="flex justify-between text-sm font-medium">
+            <span className="text-gray-700">Progress</span>
+            <span className="text-gray-900">
               {weeklyProgress.completed} of {weeklyProgress.total} tasks
             </span>
           </div>
-          <Progress value={weeklyProgress.percentage} className="h-2" />
+          <div className="space-y-2">
+            <Progress value={weeklyProgress.percentage} className="h-3 bg-gray-200" />
+            <div className="text-xs text-center text-gray-500">
+              {weeklyProgress.percentage}% Complete
+            </div>
+          </div>
         </div>
 
-        <div className="flex items-center justify-between pt-2 border-t">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-gray-500" />
-            <span className="text-sm font-medium">Status:</span>
+        <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <TrendingUp className={`h-4 w-4 ${getStatusColor().replace('text-', 'text-')}`} />
+              <span className="text-sm font-medium text-gray-700">Status:</span>
+            </div>
+            <span className={`text-sm font-bold ${getStatusColor()} px-2 py-1 rounded-md bg-white shadow-sm`}>
+              {getStatusText()}
+            </span>
           </div>
-          <span className={`text-sm font-semibold ${getStatusColor()}`}>
-            {getStatusText()}
-          </span>
         </div>
 
         {weeklyProgress.total === 0 && (
-          <div className="text-center py-4 text-gray-500 text-sm">
-            No tasks assigned for this week yet.
+          <div className="text-center py-6 text-gray-500">
+            <Target className="h-8 w-8 mx-auto mb-2 opacity-50" />
+            <p className="text-sm font-medium">No tasks assigned</p>
+            <p className="text-xs">Add some tasks to track progress</p>
           </div>
         )}
       </CardContent>

@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Team Update Bot",
-  description: "Team task management and WhatsApp notification system",
+  title: "Nudge - Team Task Management",
+  description: "Streamline team productivity with smart task management and instant WhatsApp notifications",
 };
 
 export default function RootLayout({
