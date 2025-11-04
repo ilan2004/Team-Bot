@@ -144,20 +144,20 @@ export default function MemberPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-stone-50">
       <div className="container mx-auto px-4 py-6 sm:py-8 max-w-6xl">
         {/* Header */}
         <div className="mb-6 sm:mb-8 text-center sm:text-left">
           <div className="flex flex-col sm:flex-row items-center gap-3 mb-3">
-            <div className={`flex items-center justify-center w-12 h-12 ${MEMBER_COLORS[memberName]} rounded-xl shadow-lg`}>
-              <User className="h-6 w-6 text-white" />
+            <div className="flex items-center justify-center w-12 h-12 bg-stone-200 rounded-xl">
+              <User className="h-6 w-6 text-stone-700" />
             </div>
             <div className="text-center sm:text-left">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-stone-900">
                 {MEMBER_DISPLAY_NAMES[memberName]}'s Tasks
               </h1>
               <div className="flex flex-wrap justify-center sm:justify-start gap-2 mt-2">
-                <Badge className={`${MEMBER_COLORS[memberName]} text-white font-semibold px-3 py-1`}>
+                <Badge className="bg-stone-200 text-stone-800 font-medium px-3 py-1">
                   {memberTasks.length} tasks
                 </Badge>
                 <Badge variant="outline" className="px-3 py-1">
@@ -166,12 +166,12 @@ export default function MemberPage() {
               </div>
             </div>
           </div>
-          <p className="text-gray-600 text-sm sm:text-base">Manage your tasks and track weekly progress</p>
+          <p className="text-stone-600 text-sm sm:text-base">Manage your tasks and track weekly progress</p>
         </div>
 
         {/* Add New Task */}
-        <Card className="mb-6 sm:mb-8 border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
-          <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-t-lg">
+        <Card className="mb-6 sm:mb-8 hover:shadow-md transition-shadow duration-200">
+          <CardHeader className="bg-stone-900 text-white">
             <CardTitle className="flex items-center gap-2 text-lg">
               <Plus className="h-5 w-5" />
               Add New Task
@@ -185,12 +185,12 @@ export default function MemberPage() {
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 sm:gap-8">
           {/* Today's Tasks */}
           <div className="xl:col-span-2 space-y-6">
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <CardHeader className="bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-t-lg">
+            <Card className="hover:shadow-md transition-shadow duration-200">
+              <CardHeader className="bg-stone-800 text-white">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <CalendarDays className="h-5 w-5" />
                   Today's Tasks
-                  <Badge variant="secondary" className="bg-white bg-opacity-20 text-white border-white border-opacity-30">
+                  <Badge variant="secondary" className="bg-stone-200 text-stone-800">
                     {todaysTasks.length}
                   </Badge>
                 </CardTitle>
@@ -207,8 +207,8 @@ export default function MemberPage() {
                       />
                     ))
                   ) : (
-                    <div className="text-center py-8 text-gray-500">
-                      <CalendarDays className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                    <div className="text-center py-8 text-stone-500">
+                      <CalendarDays className="h-12 w-12 mx-auto mb-3 text-stone-400" />
                       <p className="font-medium">No tasks for today</p>
                       <p className="text-sm">Great job staying on top of things!</p>
                     </div>
@@ -219,16 +219,16 @@ export default function MemberPage() {
 
             {/* All Other Tasks */}
             {otherTasks.length > 0 && (
-              <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-t-lg">
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <CheckSquare className="h-5 w-5" />
-                    All Tasks
-                    <Badge variant="secondary" className="bg-white bg-opacity-20 text-white border-white border-opacity-30">
-                      {otherTasks.length}
-                    </Badge>
-                  </CardTitle>
-                </CardHeader>
+            <Card className="hover:shadow-md transition-shadow duration-200">
+              <CardHeader className="bg-stone-600 text-white">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Clock className="h-5 w-5" />
+                  Upcoming Tasks
+                  <Badge variant="secondary" className="bg-stone-200 text-stone-800">
+                    {otherTasks.length}
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
                 <CardContent className="p-4 sm:p-6">
                   <div className="space-y-3 max-h-96 overflow-y-auto custom-scrollbar">
                     {otherTasks.map((task) => (

@@ -38,7 +38,7 @@ export function AddTaskForm({ member, onAddTask }: AddTaskFormProps) {
         type="submit" 
         disabled={!title.trim() || isSubmitting}
         size="default"
-        className="h-11 px-6 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all duration-200 font-semibold"
+        className="h-11 px-6 bg-stone-800 hover:bg-stone-700 transition-colors duration-200 font-semibold text-white"
       >
         <Plus className="w-4 h-4 mr-2" />
         {isSubmitting ? 'Adding...' : 'Add Task'}
