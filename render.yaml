@@ -1,0 +1,30 @@
+services:
+  # Next.js Web Application
+  - type: web
+    name: team-update-bot-web
+    env: node
+    rootDir: ./team-update-bot
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        value: https://vexhmfwfmegftioezttw.supabase.co
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZleGhtZndmbWVnZnRpb2V6dHR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIyNDk5NjgsImV4cCI6MjA3NzgyNTk2OH0.x6Q1JCpjb-3yQI7aT8FtlKhLLJqvh6HFSLKNANSczJs
+
+  # WhatsApp Bot Service  
+  - type: web
+    name: team-update-bot-whatsapp
+    env: node
+    rootDir: ./whatsapp-bot-service
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: SUPABASE_URL
+        value: https://vexhmfwfmegftioezttw.supabase.co
+      - key: SUPABASE_ANON_KEY
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZleGhtZndmbWVnZnRpb2V6dHR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIyNDk5NjgsImV4cCI6MjA3NzgyNTk2OH0.x6Q1JCpjb-3yQI7aT8FtlKhLLJqvh6HFSLKNANSczJs
+      - key: GROUP_ID
+        value: 120363421579500257@g.us
+      - key: POLLING_INTERVAL
+        value: 5
