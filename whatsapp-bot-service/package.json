@@ -1,0 +1,29 @@
+{
+  "name": "whatsapp-bot-service",
+  "version": "1.0.0",
+  "description": "WhatsApp bot service for team task update notifications",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "whatsapp",
+    "bot",
+    "baileys",
+    "supabase",
+    "notifications"
+  ],
+  "author": "Team Update Bot",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.78.0",
+    "@whiskeysockets/baileys": "^7.0.0-rc.6",
+    "dotenv": "^17.2.3",
+    "node-cron": "^4.2.1",
+    "pino": "^10.1.0",
+    "qrcode-terminal": "^0.12.0"
+  }
+}
