@@ -14,8 +14,8 @@ build/
 .env
 env
 
-# WhatsApp session data
-whatsapp-bot-service/auth_info_baileys/
+# WhatsApp session data - INCLUDE for deployment
+# whatsapp-bot-service/auth_info_baileys/
 
 # IDE and OS files
 .vscode/
