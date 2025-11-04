@@ -83,7 +83,7 @@ export function TeamStatusGrid({ members }: TeamStatusGridProps) {
       });
       
       if (todaysCompletedTasks.length > 0) {
-        todaysCompletedTasks.forEach((task, index) => {
+        todaysCompletedTasks.forEach((task) => {
           message += `✓ ${task.title}\n`;
         });
       } else {
@@ -134,15 +134,15 @@ export function TeamStatusGrid({ members }: TeamStatusGridProps) {
       const success = await sendSignInOutViDatabase(whatsappData);
       
       if (success) {
-        console.log(`Successfully logged ${isSignIn ? 'sign-in' : 'sign-out'} for ${member.name}`);
+        // Successfully logged sign-in/out
         // Show success feedback to user (optional)
       } else {
-        console.error(`Failed to log ${isSignIn ? 'sign-in' : 'sign-out'} for ${member.name}`);
+        // Failed to log sign-in/out
         // Could show error toast to user
       }
       
-    } catch (error) {
-      console.error('Error during sign in/out:', error);
+    } catch {
+      // Error during sign in/out
     } finally {
       setSigningIn(null);
     }
@@ -216,7 +216,7 @@ export function TeamStatusGrid({ members }: TeamStatusGridProps) {
 
                 <div className="space-y-2">
                   <div className="flex justify-between items-center text-xs sm:text-sm">
-                    <span className="truncate pr-2">Today's Tasks</span>
+                    <span className="truncate pr-2">Today&apos;s Tasks</span>
                     <span className="font-medium flex-shrink-0">{todaysTasks.length}</span>
                   </div>
                 </div>

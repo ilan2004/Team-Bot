@@ -52,8 +52,8 @@ export function SimpleTaskForm({ open, onOpenChange, defaultAssignee }: SimpleTa
       // Reset form
       setTitle('');
       onOpenChange(false);
-    } catch (error) {
-      console.error('Error creating task:', error);
+    } catch {
+      // Error creating task
     } finally {
       setIsSubmitting(false);
     }
