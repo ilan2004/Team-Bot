@@ -83,6 +83,7 @@ export interface TeamMemberProfile {
   role: string;
   avatar?: string;
   status: AvailabilityStatus;
+  currentMood?: MoodLevel;
   leaveStart?: Date;
   leaveEnd?: Date;
   leaveReason?: string;
