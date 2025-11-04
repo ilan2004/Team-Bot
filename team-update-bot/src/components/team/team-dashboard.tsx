@@ -168,7 +168,7 @@ export function TeamDashboard() {
       <SimpleTaskForm 
         open={showTaskForm}
         onOpenChange={setShowTaskForm}
-        defaultAssignee={currentUser}
+        defaultAssignee={undefined}
       />
 
       {/* Floating Action Button for Mobile */}

@@ -5,9 +5,10 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTeamStore } from '@/store/team-store';
 import { TeamMember } from '@/types';
-import { Calendar, CalendarDays } from 'lucide-react';
+import { Calendar, CalendarDays, User } from 'lucide-react';
 
 interface SimpleTaskFormProps {
   open: boolean;
@@ -17,11 +18,25 @@ interface SimpleTaskFormProps {
 
 export function SimpleTaskForm({ open, onOpenChange, defaultAssignee }: SimpleTaskFormProps) {
   const [title, setTitle] = useState('');
+  const [selectedMember, setSelectedMember] = useState<TeamMember | undefined>(defaultAssignee);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { addTask } = useTeamStore();
+  const { addTask, teamMembers } = useTeamStore();
+
+  // Reset form when dialog is closed
+  React.useEffect(() => {
+    if (!open) {
+      setTitle('');
+      if (!defaultAssignee) {
+        setSelectedMember(undefined);
+      }
+    } else {
+      // Set default assignee when opening
+      setSelectedMember(defaultAssignee);
+    }
+  }, [open, defaultAssignee]);
 
   const handleSubmit = async (dueDate: 'today' | 'tomorrow') => {
-    if (!title.trim() || !defaultAssignee) return;
+    if (!title.trim() || !selectedMember) return;
 
     setIsSubmitting(true);
 
@@ -43,7 +58,7 @@ export function SimpleTaskForm({ open, onOpenChange, defaultAssignee }: SimpleTa
         type: 'feature',
         priority: 'medium',
         status: 'todo',
-        assignee: defaultAssignee,
+        assignee: selectedMember,
         dueDate: taskDueDate,
         estimatedHours: 0,
         tags: [],
@@ -51,6 +66,9 @@ export function SimpleTaskForm({ open, onOpenChange, defaultAssignee }: SimpleTa
 
       // Reset form
       setTitle('');
+      if (!defaultAssignee) {
+        setSelectedMember(undefined);
+      }
       onOpenChange(false);
     } catch {
       // Error creating task
@@ -70,6 +88,41 @@ export function SimpleTaskForm({ open, onOpenChange, defaultAssignee }: SimpleTa
         </DialogHeader>
         
         <div className="space-y-4">
+          {!defaultAssignee && (
+            <div className="space-y-2">
+              <Label htmlFor="member-select">Assign to</Label>
+              <Select
+                value={selectedMember || ''}
+                onValueChange={(value) => setSelectedMember(value as TeamMember)}
+                disabled={isSubmitting}
+              >
+                <SelectTrigger id="member-select">
+                  <SelectValue placeholder="Select team member">
+                    {selectedMember && (
+                      <div className="flex items-center space-x-2">
+                        <User className="w-4 h-4" />
+                        <span>{teamMembers.find(m => m.id === selectedMember)?.name}</span>
+                      </div>
+                    )}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {teamMembers.map((member) => (
+                    <SelectItem key={member.id} value={member.id}>
+                      <div className="flex items-center space-x-2">
+                        <User className="w-4 h-4" />
+                        <div>
+                          <div className="font-medium">{member.name}</div>
+                          <div className="text-xs text-muted-foreground truncate">{member.role}</div>
+                        </div>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+          
           <div className="space-y-2">
             <Label htmlFor="task-title">Task Title</Label>
             <Input
@@ -79,13 +132,13 @@ export function SimpleTaskForm({ open, onOpenChange, defaultAssignee }: SimpleTa
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey && title.trim()) {
+                if (e.key === 'Enter' && !e.shiftKey && title.trim() && selectedMember) {
                   e.preventDefault();
                   handleSubmit('today');
                 }
               }}
               disabled={isSubmitting}
-              autoFocus
+              autoFocus={!!defaultAssignee}
             />
           </div>
 
@@ -93,7 +146,7 @@ export function SimpleTaskForm({ open, onOpenChange, defaultAssignee }: SimpleTa
             <Button
               type="button"
               onClick={() => handleSubmit('today')}
-              disabled={!title.trim() || isSubmitting}
+              disabled={!title.trim() || !selectedMember || isSubmitting}
               className="flex-1"
             >
               <Calendar className="w-4 h-4 mr-2" />
@@ -103,7 +156,7 @@ export function SimpleTaskForm({ open, onOpenChange, defaultAssignee }: SimpleTa
             <Button
               type="button"
               onClick={() => handleSubmit('tomorrow')}
-              disabled={!title.trim() || isSubmitting}
+              disabled={!title.trim() || !selectedMember || isSubmitting}
               variant="outline"
               className="flex-1"
             >

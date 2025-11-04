@@ -35,6 +35,9 @@ export function TeamStatusGrid({ members }: TeamStatusGridProps) {
 
   // Check if member has signed in today
   const hasSignedInToday = (memberId: string) => {
+    if (typeof window === 'undefined') {
+      return false;
+    }
     const today = new Date().toDateString();
     const lastSignIn = localStorage.getItem(`lastSignIn_${memberId}`);
     return lastSignIn === today;
@@ -56,12 +59,14 @@ export function TeamStatusGrid({ members }: TeamStatusGridProps) {
       });
 
       // Record sign in/out in local store
-      if (isSignIn) {
-        checkIn(member.id, [], `Signed in for ${new Date().toDateString()}`);
-        localStorage.setItem(`lastSignIn_${member.id}`, new Date().toDateString());
-      } else {
-        checkOut(member.id, [], [], `Signed out for ${new Date().toDateString()}`);
-        localStorage.removeItem(`lastSignIn_${member.id}`);
+      if (typeof window !== 'undefined') {
+        if (isSignIn) {
+          checkIn(member.id, [], `Signed in for ${new Date().toDateString()}`);
+          localStorage.setItem(`lastSignIn_${member.id}`, new Date().toDateString());
+        } else {
+          checkOut(member.id, [], [], `Signed out for ${new Date().toDateString()}`);
+          localStorage.removeItem(`lastSignIn_${member.id}`);
+        }
       }
 
       // Send to WhatsApp via database (bot service will pick it up)
