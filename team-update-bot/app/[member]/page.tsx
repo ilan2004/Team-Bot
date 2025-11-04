@@ -10,7 +10,7 @@ import { getTasksByMember, getTodaysTasks } from '@/lib/utils'
 import { TaskItem } from '@/components/TaskItem'
 import { AddTaskForm } from '@/components/AddTaskForm'
 import { WeeklyTargets } from '@/components/WeeklyTargets'
-import { CalendarDays, CheckSquare, User, Plus } from 'lucide-react'
+import { CalendarDays, CheckSquare, User, Plus, Clock } from 'lucide-react'
 import { notFound } from 'next/navigation'
 
 export default function MemberPage() {
