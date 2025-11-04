@@ -15,8 +15,6 @@ export async function POST(request: NextRequest) {
     // will pick up this information from the database when it polls
     // This is a placeholder that could trigger the bot service directly
     
-    console.log('WhatsApp message request:', message);
-    
     // In a real implementation, you could:
     // 1. Send HTTP request to your WhatsApp bot service if it had an API endpoint
     // 2. Insert into a queue table that the bot service monitors
@@ -28,8 +26,8 @@ export async function POST(request: NextRequest) {
       message: 'Message queued for WhatsApp delivery' 
     });
 
-  } catch (error) {
-    console.error('WhatsApp API error:', error);
+  } catch {
+    // Error handling for WhatsApp API
     return NextResponse.json(
       { error: 'Failed to send WhatsApp message' },
       { status: 500 }
