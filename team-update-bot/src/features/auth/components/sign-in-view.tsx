@@ -96,7 +96,7 @@ export default function SignInViewPage({ stars }: SignInViewPageProps) {
               {isLoading ? (
                 <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
               ) : (
-                <Icons.gitHub className="mr-2 h-4 w-4" />
+                <Icons.github className="mr-2 h-4 w-4" />
               )}
               GitHub
             </Button>

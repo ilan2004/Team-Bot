@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { TeamMemberProfile } from '@/types';
 import { useTeamStore } from '@/store/team-store';
-import { LogIn, LogOut, MessageCircle } from 'lucide-react';
+import { LogIn, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { 
   sendSignInOutViDatabase,
@@ -40,64 +40,6 @@ export function TeamStatusGrid({ members }: TeamStatusGridProps) {
     return lastSignIn === today;
   };
 
-  // Generate WhatsApp message with task details
-  const generateWhatsAppMessage = (member: TeamMemberProfile, isSignIn: boolean) => {
-    const todaysTasks = getTodaysTasks(member.id);
-    const allTasks = getTasksByMember(member.id);
-    const completedTasks = allTasks.filter(task => task.status === 'completed');
-    const currentDate = new Date().toLocaleDateString('en-US', { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    });
-
-    let message = '';
-    
-    if (isSignIn) {
-      message = `🚀 *Daily Check-in Report*\n`;
-      message += `👋 Hi! ${member.name} has signed in for ${currentDate}\n\n`;
-      message += `📋 *Today's Tasks (${todaysTasks.length}):*\n`;
-      
-      if (todaysTasks.length > 0) {
-        todaysTasks.forEach((task, index) => {
-          message += `${index + 1}. ${task.title}\n`;
-        });
-      } else {
-        message += '• No specific tasks scheduled for today\n';
-      }
-      
-      message += `\n📊 *Overall Progress:*\n`;
-      message += `• Total Tasks: ${allTasks.length}\n`;
-      message += `• Completed: ${completedTasks.length}\n`;
-      message += `• Completion Rate: ${allTasks.length > 0 ? Math.round((completedTasks.length / allTasks.length) * 100) : 0}%\n\n`;
-      message += `💪 Ready to tackle the day!`;
-    } else {
-      message = `✅ *Daily Check-out Report*\n`;
-      message += `👋 ${member.name} is signing out for ${currentDate}\n\n`;
-      message += `🎯 *Today's Accomplishments:*\n`;
-      
-      const todaysCompletedTasks = completedTasks.filter(task => {
-        const today = new Date().toDateString();
-        return task.completedAt && new Date(task.completedAt).toDateString() === today;
-      });
-      
-      if (todaysCompletedTasks.length > 0) {
-        todaysCompletedTasks.forEach((task) => {
-          message += `✓ ${task.title}\n`;
-        });
-      } else {
-        message += '• Working on ongoing tasks\n';
-      }
-      
-      message += `\n📈 *Daily Summary:*\n`;
-      message += `• Tasks Completed Today: ${todaysCompletedTasks.length}\n`;
-      message += `• Overall Progress: ${allTasks.length > 0 ? Math.round((completedTasks.length / allTasks.length) * 100) : 0}%\n\n`;
-      message += `🏠 Great work today! See you tomorrow!`;
-    }
-
-    return encodeURIComponent(message);
-  };
 
   // Handle sign in/out with WhatsApp integration
   const handleSignInOut = async (member: TeamMemberProfile, isSignIn: boolean) => {

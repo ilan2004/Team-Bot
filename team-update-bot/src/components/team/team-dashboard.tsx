@@ -7,8 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { CalendarDays, Clock, Target, Users, TrendingUp, AlertCircle, Plus } from 'lucide-react';
+import { CalendarDays, Clock, Target, AlertCircle, Plus } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import { TestFlightMilestones } from './test-flight-milestones';
 import { TeamStatusGrid } from './team-status-grid';
@@ -50,15 +49,6 @@ export function TeamDashboard() {
     };
   }, [loadTasksFromDatabase, subscribeToRealTimeUpdates, calculateStats]);
   
-  const statusColors = {
-    available: 'bg-green-500',
-    'on-leave': 'bg-yellow-500',
-    exams: 'bg-blue-500',
-    busy: 'bg-orange-500',
-    sick: 'bg-red-500',
-  };
-
-  const moodEmojis = ['😟', '🙁', '😐', '🙂', '😄'];
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">

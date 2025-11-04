@@ -115,32 +115,27 @@ export const sendSignInOutViDatabase = async (data: SignInOutData): Promise<bool
   }
 };
 
+// Basic WhatsApp message sending function (placeholder for direct API calls)
+const sendWhatsAppMessage = async (messageData: WhatsAppMessage): Promise<boolean> => {
+  try {
+    // This would integrate with your existing Baileys WhatsApp bot service
+    // For now, we'll just use the database approach via sendSignInOutViDatabase
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 // Send to team group
 export const sendToTeamGroup = async (data: SignInOutData): Promise<boolean> => {
-  const message = generateWhatsAppMessage(data);
-  
-  return await sendWhatsAppMessage({
-    to: WHATSAPP_CONFIG.GROUP_ID,
-    message: message,
-    type: 'text'
-  });
+  // For now, we'll use the database approach which your existing bot monitors
+  return await sendSignInOutViDatabase(data);
 };
 
 // Send to individual member
 export const sendToMember = async (data: SignInOutData): Promise<boolean> => {
-  const message = generateWhatsAppMessage(data);
-  const memberPhone = WHATSAPP_CONFIG.MEMBER_PHONES[data.member.id];
-  
-  if (!memberPhone) {
-    // No phone number configured for member
-    return false;
-  }
-  
-  return await sendWhatsAppMessage({
-    to: memberPhone,
-    message: message,
-    type: 'text'
-  });
+  // For now, we'll use the database approach which your existing bot monitors
+  return await sendSignInOutViDatabase(data);
 };
 
 // Send to both group and member
@@ -158,10 +153,10 @@ export const sendSignInOutNotification = async (data: SignInOutData): Promise<{
 
 // Check if WhatsApp bot service is configured
 export const isWhatsAppBotConfigured = (): boolean => {
-  return !!(WHATSAPP_CONFIG.BOT_SERVICE_URL && WHATSAPP_CONFIG.API_KEY);
+  return !!(WHATSAPP_CONFIG.BOT_SERVICE_URL);
 };
 
-// Get member phone number
-export const getMemberPhone = (memberId: string): string | null => {
-  return WHATSAPP_CONFIG.MEMBER_PHONES[memberId as keyof typeof WHATSAPP_CONFIG.MEMBER_PHONES] || null;
+// Get member display name
+export const getMemberDisplayName = (memberId: string): string => {
+  return WHATSAPP_CONFIG.MEMBER_DISPLAY_NAMES[memberId as keyof typeof WHATSAPP_CONFIG.MEMBER_DISPLAY_NAMES] || memberId;
 };

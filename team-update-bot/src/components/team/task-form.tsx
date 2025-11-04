@@ -43,7 +43,7 @@ export function TaskForm({ open, onOpenChange, defaultAssignee, taskId }: TaskFo
       priority: formData.priority,
       status: formData.status,
       assignee: formData.assignee,
-      estimatedHours: formData.estimatedHours ? parseFloat(formData.estimatedHours) : undefined,
+      estimatedHours: formData.estimatedHours ? parseFloat(String(formData.estimatedHours)) : undefined,
       dueDate: formData.dueDate ? new Date(formData.dueDate) : undefined,
     };
 

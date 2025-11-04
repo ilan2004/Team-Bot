@@ -38,9 +38,9 @@ export function CheckInDialog({ open, onOpenChange, memberId }: CheckInDialogPro
     const blockersList = blockers.split('\n').filter(blocker => blocker.trim());
 
     if (checkType === 'check-in') {
-      checkIn(memberId, mood, tasksList, notes.trim() || undefined);
+      checkIn(memberId, tasksList, notes.trim() || undefined);
     } else {
-      checkOut(memberId, mood, tasksList, blockersList.length > 0 ? blockersList : undefined, notes.trim() || undefined);
+      checkOut(memberId, tasksList, blockersList.length > 0 ? blockersList : undefined, notes.trim() || undefined);
     }
 
     // Reset form

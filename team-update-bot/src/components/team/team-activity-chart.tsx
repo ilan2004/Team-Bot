@@ -74,7 +74,7 @@ export function TeamActivityChart() {
       { name: 'Todo', value: totals.todo, color: COLORS.todo },
       { name: 'Blocked', value: totals.blocked, color: COLORS.blocked },
     ].filter(item => item.value > 0);
-  }, [chartData]);
+  }, [chartData, COLORS.completed, COLORS.inProgress, COLORS.todo, COLORS.blocked]);
 
   if (chartData.length === 0) {
     return (
@@ -111,7 +111,7 @@ export function TeamActivityChart() {
             <div className="h-56">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={pieData} cx="50%" cy="50%" labelLine={false} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`} outerRadius={75} dataKey="value">
+                  <Pie data={pieData} cx="50%" cy="50%" labelLine={false} outerRadius={75} dataKey="value">
                     {pieData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
