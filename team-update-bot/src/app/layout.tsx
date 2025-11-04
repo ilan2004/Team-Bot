@@ -72,6 +72,10 @@ export default async function RootLayout({
         <link rel='apple-touch-icon' sizes='180x180' href='/icons/icon-192x192.svg' />
         <link rel='apple-touch-icon' sizes='167x167' href='/icons/icon-192x192.svg' />
         
+        {/* iOS Startup Images */}
+        <link rel='apple-touch-startup-image' href='/icons/icon-512x512.svg' />
+        <meta name='apple-mobile-web-app-status-bar-style' content='black-translucent' />
+        
         <link rel='icon' type='image/svg+xml' href='/icons/icon-192x192.svg' />
         <link rel='manifest' href='/manifest.json' />
         <link rel='mask-icon' href='/icons/icon-192x192.svg' color='#09090b' />
