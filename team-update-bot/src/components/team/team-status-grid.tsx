@@ -13,7 +13,9 @@ import {
   sendSignInOutViDatabase,
   type SignInOutData 
 } from '@/lib/whatsapp-service';
-import { hasMemberSignedInToday } from '@/lib/api';
+import { 
+  hasMemberSignedInToday
+} from '@/lib/api';
 
 interface TeamStatusGridProps {
   members: TeamMemberProfile[];
@@ -24,34 +26,61 @@ export function TeamStatusGrid({ members }: TeamStatusGridProps) {
   const router = useRouter();
   const [signingIn, setSigningIn] = React.useState<string | null>(null);
   const [memberSignInStatus, setMemberSignInStatus] = React.useState<Record<string, boolean>>({});
+  const [lastRefresh, setLastRefresh] = React.useState<Date>(new Date());
 
-  // Load real data and check sign-in status on component mount
+  // Function to check and update sign-in status for all members
+  const checkAllMembersSignInStatus = React.useCallback(async () => {
+    console.log('Refreshing sign-in status for all members...');
+    const statusPromises = members.map(async (member) => {
+      const hasSignedIn = await hasMemberSignedInToday(member.id as any);
+      return { memberId: member.id, hasSignedIn };
+    });
+    
+    const results = await Promise.all(statusPromises);
+    const statusMap = results.reduce((acc, { memberId, hasSignedIn }) => {
+      acc[memberId] = hasSignedIn;
+      return acc;
+    }, {} as Record<string, boolean>);
+    
+    console.log('Database sign-in status:', statusMap);
+    setMemberSignInStatus(statusMap);
+    setLastRefresh(new Date());
+  }, [members]);
+
+  // Manual refresh function for debugging
+  const forceRefreshStatus = React.useCallback(() => {
+    console.log('Force refreshing sign-in status...');
+    checkAllMembersSignInStatus();
+  }, [checkAllMembersSignInStatus]);
+
+
+  // Load real data and set up polling-based sync
   React.useEffect(() => {
     loadTasksFromDatabase();
-    
-    // Load sign-in status for all members
-    const checkAllMembersSignInStatus = async () => {
-      const statusPromises = members.map(async (member) => {
-        const hasSignedIn = await hasMemberSignedInToday(member.id as any);
-        return { memberId: member.id, hasSignedIn };
-      });
-      
-      const results = await Promise.all(statusPromises);
-      const statusMap = results.reduce((acc, { memberId, hasSignedIn }) => {
-        acc[memberId] = hasSignedIn;
-        return acc;
-      }, {} as Record<string, boolean>);
-      
-      setMemberSignInStatus(statusMap);
-    };
-    
     checkAllMembersSignInStatus();
     
-    // Subscribe to real-time updates
-    const unsubscribe = subscribeToRealTimeUpdates();
+    // Subscribe to real-time updates for tasks only
+    const unsubscribeTasks = subscribeToRealTimeUpdates();
     
-    return unsubscribe;
-  }, [loadTasksFromDatabase, subscribeToRealTimeUpdates, members]);
+    // Set up polling for sign-in status (every 10 seconds)
+    const pollInterval = setInterval(() => {
+      checkAllMembersSignInStatus();
+    }, 10000); // Poll every 10 seconds
+    
+    // Also poll when window gains focus (user switches back to tab)
+    const handleFocus = () => {
+      console.log('Window focused, refreshing sign-in status...');
+      checkAllMembersSignInStatus();
+    };
+    
+    window.addEventListener('focus', handleFocus);
+    
+    return () => {
+      unsubscribeTasks();
+      clearInterval(pollInterval);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [loadTasksFromDatabase, subscribeToRealTimeUpdates, checkAllMembersSignInStatus]);
 
   // Check if member has signed in today (using database state)
   const hasSignedInToday = (memberId: string) => {
@@ -97,13 +126,11 @@ export function TeamStatusGrid({ members }: TeamStatusGridProps) {
       const success = await sendSignInOutViDatabase(whatsappData, currentDate);
       
       if (success) {
-        // Update local sign-in status immediately
-        setMemberSignInStatus(prev => ({
-          ...prev,
-          [member.id]: isSignIn
-        }));
-        
         console.log(`Successfully ${isSignIn ? 'signed in' : 'signed out'} ${member.name} on ${currentDate}`);
+        // Immediately refresh sign-in status after successful operation
+        setTimeout(() => {
+          checkAllMembersSignInStatus();
+        }, 500); // Small delay to ensure database is updated
       } else {
         console.error(`Failed to ${isSignIn ? 'sign in' : 'sign out'} ${member.name} on ${currentDate}`);
       }
@@ -140,7 +167,16 @@ export function TeamStatusGrid({ members }: TeamStatusGridProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Team Members</CardTitle>
+        <CardTitle 
+          onDoubleClick={forceRefreshStatus}
+          className="cursor-pointer select-none"
+          title="Double-click to refresh sign-in status"
+        >
+          Team Members
+          <span className="text-xs text-muted-foreground ml-2">
+            (Last updated: {lastRefresh.toLocaleTimeString()})
+          </span>
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

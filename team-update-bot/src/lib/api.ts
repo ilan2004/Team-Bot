@@ -280,6 +280,47 @@ export function subscribeToTasks(callback: (tasks: Task[]) => void) {
   };
 }
 
+// Real-time subscription for daily logs (sign-in/out events)
+export function subscribeToDailyLogs(callback: (logs: DatabaseDailyLog[]) => void) {
+  console.log('Setting up real-time subscription for daily_logs...');
+  
+  const subscription = supabase
+    .channel('daily_logs_realtime')
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'daily_logs' },
+      (payload) => {
+        console.log('Daily logs real-time update received:', payload);
+        // Fetch updated daily logs when changes occur
+        getDailyLogsByDate()
+          .then(callback)
+          .catch(error => console.error('Error fetching daily logs after real-time update:', error));
+      }
+    )
+    .subscribe((status) => {
+      console.log('Daily logs subscription status:', status);
+    });
+
+  return () => {
+    console.log('Unsubscribing from daily logs real-time updates');
+    supabase.removeChannel(subscription);
+  };
+}
+
+// Combined subscription for both tasks and daily logs
+export function subscribeToAllUpdates(
+  tasksCallback: (tasks: Task[]) => void,
+  dailyLogsCallback: (logs: DatabaseDailyLog[]) => void
+) {
+  const tasksUnsubscribe = subscribeToTasks(tasksCallback);
+  const logsUnsubscribe = subscribeToDailyLogs(dailyLogsCallback);
+  
+  return () => {
+    tasksUnsubscribe();
+    logsUnsubscribe();
+  };
+}
+
 // Daily Log Helper Functions
 
 // Get daily logs for a specific member and date
