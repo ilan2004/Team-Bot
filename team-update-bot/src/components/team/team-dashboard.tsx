@@ -25,10 +25,16 @@ export function TeamDashboard() {
   } = useTeamStore();
 
   const [showTaskForm, setShowTaskForm] = React.useState(false);
+  const [isHydrated, setIsHydrated] = React.useState(false);
 
   const testFlightDate = new Date('2025-12-04');
   const currentDate = new Date();
   const daysUntilTestFlight = differenceInDays(testFlightDate, currentDate);
+
+  // Handle hydration
+  React.useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   // Load real data and set up real-time updates
   React.useEffect(() => {
@@ -56,7 +62,10 @@ export function TeamDashboard() {
         <div className="flex-1 min-w-0">
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Team Dashboard</h2>
           <p className="text-sm sm:text-base text-muted-foreground mt-1 truncate">
-            {format(currentDate, 'EEEE, MMMM dd, yyyy • HH:mm')}
+            {isHydrated 
+              ? format(currentDate, 'EEEE, MMMM dd, yyyy • HH:mm')
+              : format(currentDate, 'EEEE, MMMM dd, yyyy')
+            }
           </p>
         </div>
         <div className="flex items-center justify-start sm:justify-end gap-2">

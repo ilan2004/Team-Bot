@@ -28,6 +28,7 @@ export function TeamStatusGrid({ members }: TeamStatusGridProps) {
   const [signingIn, setSigningIn] = React.useState<string | null>(null);
   const [memberSignInStatus, setMemberSignInStatus] = React.useState<Record<string, boolean>>({});
   const [lastRefresh, setLastRefresh] = React.useState<Date>(new Date());
+  const [isHydrated, setIsHydrated] = React.useState(false);
 
   // Function to check and update sign-in status for all members
   const checkAllMembersSignInStatus = React.useCallback(async () => {
@@ -55,8 +56,15 @@ export function TeamStatusGrid({ members }: TeamStatusGridProps) {
   }, [checkAllMembersSignInStatus]);
 
 
+  // Handle hydration
+  React.useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
   // Load real data and set up polling-based sync
   React.useEffect(() => {
+    if (!isHydrated) return;
+    
     loadTasksFromDatabase();
     checkAllMembersSignInStatus();
     
@@ -81,10 +89,12 @@ export function TeamStatusGrid({ members }: TeamStatusGridProps) {
       clearInterval(pollInterval);
       window.removeEventListener('focus', handleFocus);
     };
-  }, [loadTasksFromDatabase, subscribeToRealTimeUpdates, checkAllMembersSignInStatus]);
+  }, [isHydrated, loadTasksFromDatabase, subscribeToRealTimeUpdates, checkAllMembersSignInStatus]);
 
   // Check if member has signed in today (using database state)
   const hasSignedInToday = (memberId: string) => {
+    // During SSR or before hydration, return false to avoid hydration mismatch
+    if (!isHydrated) return false;
     return memberSignInStatus[memberId] || false;
   };
 
@@ -107,7 +117,7 @@ export function TeamStatusGrid({ members }: TeamStatusGridProps) {
       });
 
       // Record sign in/out in local store (for compatibility)
-      if (typeof window !== 'undefined') {
+      if (isHydrated) {
         if (isSignIn) {
           checkIn(member.id, [], `Signed in for ${currentDate}`);
         } else {
@@ -175,7 +185,7 @@ export function TeamStatusGrid({ members }: TeamStatusGridProps) {
         >
           Team Members
           <span className="text-xs text-muted-foreground ml-2">
-            (Last updated: {lastRefresh.toLocaleTimeString()})
+            (Last updated: {isHydrated ? lastRefresh.toLocaleTimeString() : '--:--:--'})
           </span>
         </CardTitle>
       </CardHeader>
