@@ -13,6 +13,7 @@ import {
   sendSignInOutViDatabase,
   type SignInOutData 
 } from '@/lib/whatsapp-service';
+import { hasMemberSignedInToday } from '@/lib/api';
 
 interface TeamStatusGridProps {
   members: TeamMemberProfile[];
@@ -22,25 +23,39 @@ export function TeamStatusGrid({ members }: TeamStatusGridProps) {
   const { getTodaysTasks, getTasksByMember, loadTasksFromDatabase, subscribeToRealTimeUpdates, checkIn, checkOut } = useTeamStore();
   const router = useRouter();
   const [signingIn, setSigningIn] = React.useState<string | null>(null);
+  const [memberSignInStatus, setMemberSignInStatus] = React.useState<Record<string, boolean>>({});
 
-  // Load real data on component mount
+  // Load real data and check sign-in status on component mount
   React.useEffect(() => {
     loadTasksFromDatabase();
+    
+    // Load sign-in status for all members
+    const checkAllMembersSignInStatus = async () => {
+      const statusPromises = members.map(async (member) => {
+        const hasSignedIn = await hasMemberSignedInToday(member.id as any);
+        return { memberId: member.id, hasSignedIn };
+      });
+      
+      const results = await Promise.all(statusPromises);
+      const statusMap = results.reduce((acc, { memberId, hasSignedIn }) => {
+        acc[memberId] = hasSignedIn;
+        return acc;
+      }, {} as Record<string, boolean>);
+      
+      setMemberSignInStatus(statusMap);
+    };
+    
+    checkAllMembersSignInStatus();
     
     // Subscribe to real-time updates
     const unsubscribe = subscribeToRealTimeUpdates();
     
     return unsubscribe;
-  }, [loadTasksFromDatabase, subscribeToRealTimeUpdates]);
+  }, [loadTasksFromDatabase, subscribeToRealTimeUpdates, members]);
 
-  // Check if member has signed in today
+  // Check if member has signed in today (using database state)
   const hasSignedInToday = (memberId: string) => {
-    if (typeof window === 'undefined') {
-      return false;
-    }
-    const today = new Date().toDateString();
-    const lastSignIn = localStorage.getItem(`lastSignIn_${memberId}`);
-    return lastSignIn === today;
+    return memberSignInStatus[memberId] || false;
   };
 
 
@@ -49,6 +64,9 @@ export function TeamStatusGrid({ members }: TeamStatusGridProps) {
     setSigningIn(member.id);
     
     try {
+      // Get current date for logging
+      const currentDate = new Date().toISOString().split('T')[0];
+      
       // Get task data for WhatsApp message
       const todaysTasks = getTodaysTasks(member.id);
       const allTasks = getTasksByMember(member.id);
@@ -58,18 +76,16 @@ export function TeamStatusGrid({ members }: TeamStatusGridProps) {
         return task.completedAt && new Date(task.completedAt).toDateString() === today;
       });
 
-      // Record sign in/out in local store
+      // Record sign in/out in local store (for compatibility)
       if (typeof window !== 'undefined') {
         if (isSignIn) {
-          checkIn(member.id, [], `Signed in for ${new Date().toDateString()}`);
-          localStorage.setItem(`lastSignIn_${member.id}`, new Date().toDateString());
+          checkIn(member.id, [], `Signed in for ${currentDate}`);
         } else {
-          checkOut(member.id, [], [], `Signed out for ${new Date().toDateString()}`);
-          localStorage.removeItem(`lastSignIn_${member.id}`);
+          checkOut(member.id, [], [], `Signed out for ${currentDate}`);
         }
       }
 
-      // Send to WhatsApp via database (bot service will pick it up)
+      // Send to WhatsApp via database with explicit date (bot service will pick it up)
       const whatsappData: SignInOutData = {
         member,
         isSignIn,
@@ -78,18 +94,22 @@ export function TeamStatusGrid({ members }: TeamStatusGridProps) {
         todaysCompletedTasks,
       };
       
-      const success = await sendSignInOutViDatabase(whatsappData);
+      const success = await sendSignInOutViDatabase(whatsappData, currentDate);
       
       if (success) {
-        // Successfully logged sign-in/out
-        // Show success feedback to user (optional)
+        // Update local sign-in status immediately
+        setMemberSignInStatus(prev => ({
+          ...prev,
+          [member.id]: isSignIn
+        }));
+        
+        console.log(`Successfully ${isSignIn ? 'signed in' : 'signed out'} ${member.name} on ${currentDate}`);
       } else {
-        // Failed to log sign-in/out
-        // Could show error toast to user
+        console.error(`Failed to ${isSignIn ? 'sign in' : 'sign out'} ${member.name} on ${currentDate}`);
       }
       
-    } catch {
-      // Error during sign in/out
+    } catch (error) {
+      console.error('Error during sign in/out:', error);
     } finally {
       setSigningIn(null);
     }

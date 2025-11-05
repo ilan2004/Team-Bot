@@ -1,4 +1,4 @@
-import { supabase, type DatabaseTask } from './supabase';
+import { supabase, type DatabaseTask, type DatabaseDailyLog } from './supabase';
 import type { Task, TeamMember, TeamStats } from '@/types';
 
 // Convert database task to app task format
@@ -223,33 +223,40 @@ export async function getTodaysTasksByMember(memberId: TeamMember): Promise<Task
 export async function createDailyLog(data: {
   memberName: TeamMember;
   logType: 'check_in' | 'check_out';
+  logDate?: string; // Optional explicit date in YYYY-MM-DD format, defaults to today
   tasksPlanned?: string[];
   tasksCompleted?: string[];
   tomorrowPriority?: string;
+  mood?: number;
   notes?: string;
 }): Promise<boolean> {
   try {
+    // Get current date in YYYY-MM-DD format if not provided
+    const currentDate = data.logDate || new Date().toISOString().split('T')[0];
+    
     const { error } = await supabase
       .from('daily_logs')
       .insert([
         {
           member_name: data.memberName,
           log_type: data.logType,
+          log_date: currentDate,
           tasks_planned: data.tasksPlanned || null,
           tasks_completed: data.tasksCompleted || null,
           tomorrow_priority: data.tomorrowPriority || null,
+          mood: data.mood || null,
           notes: data.notes || null,
         }
       ]);
 
     if (error) {
-      // Error creating daily log
+      console.error('Error creating daily log:', error);
       return false;
     }
 
     return true;
-  } catch {
-    // Error creating daily log
+  } catch (err) {
+    console.error('Error creating daily log:', err);
     return false;
   }
 }
@@ -271,4 +278,176 @@ export function subscribeToTasks(callback: (tasks: Task[]) => void) {
   return () => {
     supabase.removeChannel(subscription);
   };
+}
+
+// Daily Log Helper Functions
+
+// Get daily logs for a specific member and date
+export async function getDailyLogsByMemberAndDate(
+  memberName: TeamMember, 
+  date?: string // YYYY-MM-DD format, defaults to today
+): Promise<DatabaseDailyLog[]> {
+  try {
+    const targetDate = date || new Date().toISOString().split('T')[0];
+    
+    const { data, error } = await supabase
+      .from('daily_logs')
+      .select('*')
+      .eq('member_name', memberName)
+      .eq('log_date', targetDate)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching daily logs:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (err) {
+    console.error('Error fetching daily logs:', err);
+    return [];
+  }
+}
+
+// Get all daily logs for a specific date
+export async function getDailyLogsByDate(date?: string): Promise<DatabaseDailyLog[]> {
+  try {
+    const targetDate = date || new Date().toISOString().split('T')[0];
+    
+    const { data, error } = await supabase
+      .from('daily_logs')
+      .select('*')
+      .eq('log_date', targetDate)
+      .order('member_name', { ascending: true })
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching daily logs by date:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (err) {
+    console.error('Error fetching daily logs by date:', err);
+    return [];
+  }
+}
+
+// Check if a member has signed in today
+export async function hasMemberSignedInToday(memberName: TeamMember, date?: string): Promise<boolean> {
+  try {
+    const targetDate = date || new Date().toISOString().split('T')[0];
+    
+    const { data, error } = await supabase
+      .from('daily_logs')
+      .select('id')
+      .eq('member_name', memberName)
+      .eq('log_type', 'check_in')
+      .eq('log_date', targetDate)
+      .limit(1);
+
+    if (error) {
+      console.error('Error checking sign-in status:', error);
+      return false;
+    }
+
+    return (data?.length || 0) > 0;
+  } catch (err) {
+    console.error('Error checking sign-in status:', err);
+    return false;
+  }
+}
+
+// Check if a member has signed out today
+export async function hasMemberSignedOutToday(memberName: TeamMember, date?: string): Promise<boolean> {
+  try {
+    const targetDate = date || new Date().toISOString().split('T')[0];
+    
+    const { data, error } = await supabase
+      .from('daily_logs')
+      .select('id')
+      .eq('member_name', memberName)
+      .eq('log_type', 'check_out')
+      .eq('log_date', targetDate)
+      .limit(1);
+
+    if (error) {
+      console.error('Error checking sign-out status:', error);
+      return false;
+    }
+
+    return (data?.length || 0) > 0;
+  } catch (err) {
+    console.error('Error checking sign-out status:', err);
+    return false;
+  }
+}
+
+// Get daily logs for a member within a date range
+export async function getDailyLogsByMemberAndDateRange(
+  memberName: TeamMember,
+  startDate: string, // YYYY-MM-DD format
+  endDate: string    // YYYY-MM-DD format
+): Promise<DatabaseDailyLog[]> {
+  try {
+    const { data, error } = await supabase
+      .from('daily_logs')
+      .select('*')
+      .eq('member_name', memberName)
+      .gte('log_date', startDate)
+      .lte('log_date', endDate)
+      .order('log_date', { ascending: false })
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching daily logs by date range:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (err) {
+    console.error('Error fetching daily logs by date range:', err);
+    return [];
+  }
+}
+
+// Get team attendance summary for a specific date
+export async function getTeamAttendanceSummary(date?: string): Promise<{
+  date: string;
+  signedIn: TeamMember[];
+  signedOut: TeamMember[];
+  notSignedIn: TeamMember[];
+}> {
+  try {
+    const targetDate = date || new Date().toISOString().split('T')[0];
+    const allMembers: TeamMember[] = ['ilan', 'midlaj', 'hysam', 'alan'];
+    
+    const logs = await getDailyLogsByDate(targetDate);
+    
+    const signedInMembers = logs
+      .filter(log => log.log_type === 'check_in')
+      .map(log => log.member_name);
+      
+    const signedOutMembers = logs
+      .filter(log => log.log_type === 'check_out')
+      .map(log => log.member_name);
+    
+    const notSignedIn = allMembers.filter(member => !signedInMembers.includes(member));
+    
+    return {
+      date: targetDate,
+      signedIn: [...new Set(signedInMembers)], // Remove duplicates
+      signedOut: [...new Set(signedOutMembers)], // Remove duplicates
+      notSignedIn
+    };
+  } catch (err) {
+    console.error('Error getting team attendance summary:', err);
+    const targetDate = date || new Date().toISOString().split('T')[0];
+    return {
+      date: targetDate,
+      signedIn: [],
+      signedOut: [],
+      notSignedIn: ['ilan', 'midlaj', 'hysam', 'alan']
+    };
+  }
 }

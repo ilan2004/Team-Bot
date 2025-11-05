@@ -15,3 +15,18 @@ export interface DatabaseTask {
   updated_at: string;
   completed_at: string | null;
 }
+
+// Database type for daily logs
+export interface DatabaseDailyLog {
+  id: string;
+  member_name: 'ilan' | 'midlaj' | 'hysam' | 'alan';
+  log_type: 'check_in' | 'check_out';
+  log_date: string; // Date in YYYY-MM-DD format
+  tasks_planned: string[] | null;
+  tasks_completed: string[] | null;
+  tomorrow_priority: string | null;
+  mood: number | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}

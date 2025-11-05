@@ -86,31 +86,41 @@ export const generateWhatsAppMessage = (data: SignInOutData): string => {
 // Send sign-in/out via database (WhatsApp bot service will pick it up)
 import { createDailyLog } from './api';
 
-export const sendSignInOutViDatabase = async (data: SignInOutData): Promise<boolean> => {
+export const sendSignInOutViDatabase = async (
+  data: SignInOutData, 
+  customDate?: string // Optional explicit date in YYYY-MM-DD format
+): Promise<boolean> => {
   try {
+    // Get current date in YYYY-MM-DD format if not provided
+    const logDate = customDate || new Date().toISOString().split('T')[0];
+    
     // Extract task titles for the database entry
     const tasksPlanned = data.isSignIn ? data.todaysTasks.map(task => task.title) : undefined;
     const tasksCompleted = !data.isSignIn ? data.todaysCompletedTasks.map(task => task.title) : undefined;
     
-    // Create daily log entry that WhatsApp bot service will pick up
-    const success = await createDailyLog({
+    // Create comprehensive log entry with explicit date
+    const logData = {
       memberName: data.member.id,
-      logType: data.isSignIn ? 'check_in' : 'check_out',
+      logType: data.isSignIn ? 'check_in' : 'check_out' as const,
+      logDate: logDate, // Explicit date field
       tasksPlanned: tasksPlanned,
       tasksCompleted: tasksCompleted,
       tomorrowPriority: !data.isSignIn ? 'Continue with current tasks' : undefined,
-      notes: `${data.isSignIn ? 'Signed in' : 'Signed out'} via Team Update Bot`,
-    });
+      notes: `${data.isSignIn ? 'Signed in' : 'Signed out'} via Team Update Bot on ${logDate}`,
+    };
+    
+    // Create daily log entry that WhatsApp bot service will pick up
+    const success = await createDailyLog(logData);
 
     if (success) {
-      // Daily log created successfully
+      console.log(`Successfully logged ${data.isSignIn ? 'sign-in' : 'sign-out'} for ${data.member.name} on ${logDate}`);
       return true;
     } else {
-      // Failed to create daily log entry
+      console.error(`Failed to log ${data.isSignIn ? 'sign-in' : 'sign-out'} for ${data.member.name} on ${logDate}`);
       return false;
     }
-  } catch {
-    // Error sending sign-in/out via database
+  } catch (error) {
+    console.error('Error sending sign-in/out via database:', error);
     return false;
   }
 };

@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS public.daily_logs (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     member_name TEXT NOT NULL CHECK (member_name IN ('ilan', 'midlaj', 'hysam', 'alan')),
     log_type TEXT NOT NULL CHECK (log_type IN ('check_in', 'check_out')),
+    log_date DATE DEFAULT CURRENT_DATE NOT NULL, -- Explicit date for easier querying
     tasks_planned TEXT[], -- For check-in
     tasks_completed TEXT[], -- For check-out
     tomorrow_priority TEXT, -- For check-out
@@ -93,5 +94,7 @@ CREATE INDEX IF NOT EXISTS idx_tasks_created_at ON public.tasks(created_at);
 CREATE INDEX IF NOT EXISTS idx_tasks_updated_at ON public.tasks(updated_at);
 CREATE INDEX IF NOT EXISTS idx_daily_logs_member ON public.daily_logs(member_name);
 CREATE INDEX IF NOT EXISTS idx_daily_logs_created_at ON public.daily_logs(created_at);
+CREATE INDEX IF NOT EXISTS idx_daily_logs_date ON public.daily_logs(log_date);
+CREATE INDEX IF NOT EXISTS idx_daily_logs_member_date ON public.daily_logs(member_name, log_date);
 CREATE INDEX IF NOT EXISTS idx_availability_member ON public.availability(member_name);
 CREATE INDEX IF NOT EXISTS idx_availability_dates ON public.availability(start_date, end_date);
