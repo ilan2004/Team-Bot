@@ -25,7 +25,6 @@ export interface DatabaseDailyLog {
   tasks_planned: string[] | null;
   tasks_completed: string[] | null;
   tomorrow_priority: string | null;
-  mood: number | null;
   notes: string | null;
   created_at: string;
   updated_at: string;

@@ -40,7 +40,6 @@ export default function AppSidebar() {
     url: `/dashboard/${member.id}`,
     icon: User,
     status: member.status,
-    mood: member.currentMood,
   }));
 
   const statusColors = {
@@ -51,7 +50,6 @@ export default function AppSidebar() {
     sick: 'bg-red-500',
   };
 
-  const moodEmojis = ['😟', '🙁', '😐', '🙂', '😄'];
 
   return (
     <Sidebar collapsible='icon'>
@@ -108,11 +106,6 @@ export default function AppSidebar() {
                           className={`w-2 h-2 rounded-full ${statusColors[item.status as keyof typeof statusColors]}`}
                           title={item.status}
                         />
-                        {item.mood && (
-                          <span className="text-xs" title={`Mood: ${item.mood}/5`}>
-                            {moodEmojis[item.mood - 1]}
-                          </span>
-                        )}
                       </div>
                     </Link>
                   </SidebarMenuButton>

@@ -231,7 +231,6 @@ export async function createDailyLog(data: {
   tasksPlanned?: string[];
   tasksCompleted?: string[];
   tomorrowPriority?: string;
-  mood?: number;
   notes?: string;
 }): Promise<boolean> {
   try {
@@ -248,7 +247,6 @@ export async function createDailyLog(data: {
           tasks_planned: data.tasksPlanned || null,
           tasks_completed: data.tasksCompleted || null,
           tomorrow_priority: data.tomorrowPriority || null,
-          mood: data.mood || null,
           notes: data.notes || null,
         }
       ]);

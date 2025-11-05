@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { TeamMember, MoodLevel } from '@/types';
+import { TeamMember } from '@/types';
 import { format } from 'date-fns';
 
 interface CheckInDialogProps {
@@ -18,7 +18,6 @@ interface CheckInDialogProps {
 
 export function CheckInDialog({ open, onOpenChange, memberId }: CheckInDialogProps) {
   const [checkType, setCheckType] = useState<'check-in' | 'check-out'>('check-in');
-  const [mood, setMood] = useState<MoodLevel>(3);
   const [notes, setNotes] = useState('');
   const [plannedTasks, setPlannedTasks] = useState('');
   const [completedTasks, setCompletedTasks] = useState('');
@@ -44,7 +43,6 @@ export function CheckInDialog({ open, onOpenChange, memberId }: CheckInDialogPro
     }
 
     // Reset form
-    setMood(3);
     setNotes('');
     setPlannedTasks('');
     setCompletedTasks('');
@@ -53,13 +51,6 @@ export function CheckInDialog({ open, onOpenChange, memberId }: CheckInDialogPro
     onOpenChange(false);
   };
 
-  const moodLabels = {
-    1: '😟 Very Low',
-    2: '🙁 Low', 
-    3: '😐 Neutral',
-    4: '🙂 Good',
-    5: '😄 Excellent'
-  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -87,20 +78,6 @@ export function CheckInDialog({ open, onOpenChange, memberId }: CheckInDialogPro
             </RadioGroup>
           </div>
 
-          {/* Mood Selection */}
-          <div className="space-y-3">
-            <Label>Current Mood</Label>
-            <RadioGroup value={mood.toString()} onValueChange={(value) => setMood(parseInt(value) as MoodLevel)}>
-              {Object.entries(moodLabels).map(([value, label]) => (
-                <div key={value} className="flex items-center space-x-2">
-                  <RadioGroupItem value={value} id={`mood-${value}`} />
-                  <Label htmlFor={`mood-${value}`} className="text-sm">
-                    {label}
-                  </Label>
-                </div>
-              ))}
-            </RadioGroup>
-          </div>
 
           {/* Tasks Section */}
           {checkType === 'check-in' ? (

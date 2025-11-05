@@ -45,7 +45,6 @@ export type TaskStatus = 'todo' | 'in-progress' | 'completed' | 'blocked';
 
 export type AvailabilityStatus = 'available' | 'on-leave' | 'exams' | 'busy' | 'sick';
 
-export type MoodLevel = 1 | 2 | 3 | 4 | 5;
 
 export interface Task {
   id: string;
@@ -83,7 +82,6 @@ export interface TeamMemberProfile {
   role: string;
   avatar?: string;
   status: AvailabilityStatus;
-  currentMood?: MoodLevel;
   leaveStart?: Date;
   leaveEnd?: Date;
   leaveReason?: string;
