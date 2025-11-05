@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable no-console */
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,7 +20,6 @@ export function SignInDebug({ members }: SignInDebugProps) {
   const [dailyLogs, setDailyLogs] = React.useState<DatabaseDailyLog[]>([]);
   const [memberStatus, setMemberStatus] = React.useState<Record<string, boolean>>({});
   const [lastUpdate, setLastUpdate] = React.useState<Date>(new Date());
-  const [isConnected, setIsConnected] = React.useState(false);
 
   // Function to refresh data
   const refreshData = React.useCallback(async () => {
@@ -47,36 +47,6 @@ export function SignInDebug({ members }: SignInDebugProps) {
     setLastUpdate(new Date());
   }, [members]);
 
-  // Handle real-time updates
-  const handleRealTimeUpdate = React.useCallback((logs: DatabaseDailyLog[]) => {
-    console.log('⚡ Real-time update received:', logs);
-    setDailyLogs(logs);
-    
-    // Update member status based on logs
-    const today = new Date().toISOString().split('T')[0];
-    const todaysLogs = logs.filter(log => log.log_date === today);
-    
-    const newStatus: Record<string, boolean> = {};
-    members.forEach(member => {
-      newStatus[member.id] = false;
-    });
-
-    const sortedLogs = todaysLogs.sort((a, b) => 
-      new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-    );
-
-    const memberLatestStatus: Record<string, 'check_in' | 'check_out'> = {};
-    sortedLogs.forEach(log => {
-      memberLatestStatus[log.member_name] = log.log_type;
-    });
-
-    Object.entries(memberLatestStatus).forEach(([memberName, latestLogType]) => {
-      newStatus[memberName] = latestLogType === 'check_in';
-    });
-
-    setMemberStatus(newStatus);
-    setLastUpdate(new Date());
-  }, [members]);
 
   // Test sign-in function
   const testSignIn = async (memberId: string) => {
@@ -119,7 +89,6 @@ export function SignInDebug({ members }: SignInDebugProps) {
   // Setup polling-based sync
   React.useEffect(() => {
     refreshData();
-    setIsConnected(true); // Always connected with polling
 
     console.log('🔄 Setting up polling-based sync (every 5 seconds)...');
     const pollInterval = setInterval(() => {
@@ -187,7 +156,7 @@ export function SignInDebug({ members }: SignInDebugProps) {
 
           {/* Today's Logs */}
           <div>
-            <h4 className="font-medium mb-2">Today's Logs ({dailyLogs.length})</h4>
+            <h4 className="font-medium mb-2">Today&apos;s Logs ({dailyLogs.length})</h4>
             <div className="max-h-40 overflow-y-auto space-y-1">
               {dailyLogs.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No logs for today</p>
@@ -196,7 +165,7 @@ export function SignInDebug({ members }: SignInDebugProps) {
                   <div key={log.id} className="text-xs p-2 bg-muted rounded">
                     <div className="flex items-center justify-between">
                       <span className="font-medium">{log.member_name}</span>
-                      <Badge size="sm" variant={log.log_type === 'check_in' ? 'default' : 'secondary'}>
+                      <Badge variant={log.log_type === 'check_in' ? 'default' : 'secondary'}>
                         {log.log_type}
                       </Badge>
                     </div>
@@ -216,11 +185,11 @@ export function SignInDebug({ members }: SignInDebugProps) {
           <div className="text-xs text-muted-foreground border-t pt-2">
             <p><strong>Instructions:</strong></p>
             <ul className="list-disc list-inside space-y-1 mt-1">
-              <li>Use "Test In/Out" buttons to simulate sign-in/out events</li>
+              <li>Use &quot;Test In/Out&quot; buttons to simulate sign-in/out events</li>
               <li>Status updates automatically every 5 seconds via polling</li>
               <li>Open this on multiple devices to test sync (may take up to 10 seconds)</li>
               <li>Updates also happen when you switch back to the browser tab</li>
-              <li>Double-click "Team Members" title in main dashboard for manual refresh</li>
+              <li>Double-click &quot;Team Members&quot; title in main dashboard for manual refresh</li>
             </ul>
           </div>
         </CardContent>

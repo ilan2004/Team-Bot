@@ -1,4 +1,5 @@
 // WhatsApp Bot Service Integration (Baileys Implementation)
+/* eslint-disable no-console */
 import { TeamMemberProfile } from '@/types';
 
 // WhatsApp configuration for existing Baileys service
@@ -101,7 +102,7 @@ export const sendSignInOutViDatabase = async (
     // Create comprehensive log entry with explicit date
     const logData = {
       memberName: data.member.id,
-      logType: data.isSignIn ? 'check_in' : 'check_out' as const,
+      logType: (data.isSignIn ? 'check_in' : 'check_out') as 'check_in' | 'check_out',
       logDate: logDate, // Explicit date field
       tasksPlanned: tasksPlanned,
       tasksCompleted: tasksCompleted,
@@ -125,16 +126,6 @@ export const sendSignInOutViDatabase = async (
   }
 };
 
-// Basic WhatsApp message sending function (placeholder for direct API calls)
-const sendWhatsAppMessage = async (messageData: WhatsAppMessage): Promise<boolean> => {
-  try {
-    // This would integrate with your existing Baileys WhatsApp bot service
-    // For now, we'll just use the database approach via sendSignInOutViDatabase
-    return true;
-  } catch {
-    return false;
-  }
-};
 
 // Send to team group
 export const sendToTeamGroup = async (data: SignInOutData): Promise<boolean> => {

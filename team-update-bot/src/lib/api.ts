@@ -1,5 +1,9 @@
+/* eslint-disable no-console */
 import { supabase, type DatabaseTask, type DatabaseDailyLog } from './supabase';
 import type { Task, TeamMember, TeamStats } from '@/types';
+
+// Re-export the type for use in other components
+export type { DatabaseDailyLog };
 
 // Convert database task to app task format
 export function convertDbTaskToTask(dbTask: DatabaseTask): Task {
@@ -477,8 +481,8 @@ export async function getTeamAttendanceSummary(date?: string): Promise<{
     
     return {
       date: targetDate,
-      signedIn: [...new Set(signedInMembers)], // Remove duplicates
-      signedOut: [...new Set(signedOutMembers)], // Remove duplicates
+      signedIn: Array.from(new Set(signedInMembers)), // Remove duplicates
+      signedOut: Array.from(new Set(signedOutMembers)), // Remove duplicates
       notSignedIn
     };
   } catch (err) {

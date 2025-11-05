@@ -24,7 +24,6 @@ export function TeamDashboard() {
   } = useTeamStore();
 
   const [showTaskForm, setShowTaskForm] = React.useState(false);
-  const [currentUser] = React.useState<'ilan' | 'midlaj' | 'hysam' | 'alan'>('ilan'); // Default to Ilan, can be made dynamic
 
   const testFlightDate = new Date('2025-12-04');
   const currentDate = new Date();
