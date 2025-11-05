@@ -2,6 +2,7 @@ import Providers from '@/components/layout/providers';
 import { Toaster } from '@/components/ui/sonner';
 import { fontVariables } from '@/lib/font';
 import ThemeProvider from '@/components/layout/ThemeToggle/theme-provider';
+import { PWAInstaller } from '@/components/pwa/pwa-installer';
 import { cn } from '@/lib/utils';
 import type { Metadata, Viewport } from 'next';
 import { cookies } from 'next/headers';
@@ -58,8 +59,9 @@ export default async function RootLayout({
       <head>
         <meta name='application-name' content='Team Update Bot' />
         <meta name='apple-mobile-web-app-capable' content='yes' />
-        <meta name='apple-mobile-web-app-status-bar-style' content='default' />
+        <meta name='apple-mobile-web-app-status-bar-style' content='black-translucent' />
         <meta name='apple-mobile-web-app-title' content='Team Update Bot' />
+        <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no, viewport-fit=cover' />
         <meta name='description' content='Comprehensive task management system with WhatsApp notifications for team collaboration' />
         <meta name='format-detection' content='telephone=no' />
         <meta name='mobile-web-app-capable' content='yes' />
@@ -67,19 +69,19 @@ export default async function RootLayout({
         <meta name='msapplication-TileColor' content='#09090b' />
         <meta name='msapplication-tap-highlight' content='no' />
         
-        <link rel='apple-touch-icon' href='/icons/icon-152x152.svg' />
-        <link rel='apple-touch-icon' sizes='152x152' href='/icons/icon-152x152.svg' />
-        <link rel='apple-touch-icon' sizes='180x180' href='/icons/icon-192x192.svg' />
-        <link rel='apple-touch-icon' sizes='167x167' href='/icons/icon-192x192.svg' />
+        <link rel='apple-touch-icon' href='/icons/icon-152x152.png' />
+        <link rel='apple-touch-icon' sizes='152x152' href='/icons/icon-152x152.png' />
+        <link rel='apple-touch-icon' sizes='180x180' href='/icons/icon-192x192.png' />
+        <link rel='apple-touch-icon' sizes='167x167' href='/icons/icon-192x192.png' />
         
         {/* iOS Startup Images */}
-        <link rel='apple-touch-startup-image' href='/icons/icon-512x512.svg' />
-        <meta name='apple-mobile-web-app-status-bar-style' content='black-translucent' />
+        <link rel='apple-touch-startup-image' href='/icons/icon-512x512.png' />
         
+        <link rel='icon' type='image/png' href='/icons/icon-192x192.png' />
         <link rel='icon' type='image/svg+xml' href='/icons/icon-192x192.svg' />
         <link rel='manifest' href='/manifest.json' />
-        <link rel='mask-icon' href='/icons/icon-192x192.svg' color='#09090b' />
-        <link rel='shortcut icon' href='/icons/icon-192x192.svg' />
+        <link rel='mask-icon' href='/icons/icon-192x192.png' color='#09090b' />
+        <link rel='shortcut icon' href='/icons/icon-192x192.png' />
         
         <script
           dangerouslySetInnerHTML={{
@@ -113,6 +115,7 @@ export default async function RootLayout({
             <Providers activeThemeValue={activeThemeValue as string}>
               <Toaster />
               {children}
+              <PWAInstaller />
             </Providers>
           </ThemeProvider>
         </NuqsAdapter>

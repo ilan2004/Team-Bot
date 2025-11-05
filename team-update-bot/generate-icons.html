@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PWA Icon Generator</title>
+</head>
+<body>
+    <h1>PWA Icon Generator</h1>
+    <p>This will generate PNG icons for your PWA.</p>
+    <button onclick="generateIcons()">Generate Icons</button>
+    <div id="output"></div>
+
+    <script>
+        function generateIcons() {
+            const sizes = [152, 192, 512];
+            const output = document.getElementById('output');
+            
+            sizes.forEach(size => {
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext('2d');
+                
+                // Create a simple colored icon
+                ctx.fillStyle = '#09090b';
+                ctx.fillRect(0, 0, size, size);
+                
+                // Add text
+                ctx.fillStyle = '#ffffff';
+                ctx.font = `${Math.floor(size/3)}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('TU', size/2, size/2);
+                
+                // Convert to blob and create download link
+                canvas.toBlob(function(blob) {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `icon-${size}x${size}.png`;
+                    link.textContent = `Download ${size}x${size} icon`;
+                    link.style.display = 'block';
+                    link.style.margin = '10px 0';
+                    output.appendChild(link);
+                });
+            });
+            
+            output.innerHTML += '<p>Click the links above to download the generated icons, then place them in your public/icons/ folder.</p>';
+        }
+    </script>
+</body>
+</html>

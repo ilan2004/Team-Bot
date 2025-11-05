@@ -16,7 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { useTeamStore } from '@/store/team-store';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, User, Target, BarChart3 } from 'lucide-react';
+import { Home, User, Target, BarChart3, Calendar } from 'lucide-react';
 
 export default function AppSidebar() {
   const pathname = usePathname();
@@ -27,6 +27,11 @@ export default function AppSidebar() {
       title: 'Dashboard',
       url: '/dashboard',
       icon: Home,
+    },
+    {
+      title: 'Leave Calendar',
+      url: '/dashboard/leave',
+      icon: Calendar,
     },
   ];
 
