@@ -18,12 +18,16 @@ interface StatusUpdateDialogProps {
 
 export function StatusUpdateDialog({ open, onOpenChange, member }: StatusUpdateDialogProps) {
   const [status, setStatus] = useState<AvailabilityStatus>(member.status);
-  const [leaveStart, setLeaveStart] = useState(
-    member.leaveStart ? member.leaveStart.toISOString().split('T')[0] : ''
-  );
-  const [leaveEnd, setLeaveEnd] = useState(
-    member.leaveEnd ? member.leaveEnd.toISOString().split('T')[0] : ''
-  );
+  const [leaveStart, setLeaveStart] = useState(() => {
+    if (!member.leaveStart) return '';
+    const date = member.leaveStart instanceof Date ? member.leaveStart : new Date(member.leaveStart);
+    return isNaN(date.getTime()) ? '' : date.toISOString().split('T')[0];
+  });
+  const [leaveEnd, setLeaveEnd] = useState(() => {
+    if (!member.leaveEnd) return '';
+    const date = member.leaveEnd instanceof Date ? member.leaveEnd : new Date(member.leaveEnd);
+    return isNaN(date.getTime()) ? '' : date.toISOString().split('T')[0];
+  });
   const [leaveReason, setLeaveReason] = useState(member.leaveReason || '');
 
   const { updateMemberStatus } = useTeamStore();
