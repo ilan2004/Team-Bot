@@ -2,6 +2,7 @@ const { default: makeWASocket, DisconnectReason, useMultiFileAuthState } = requi
 const { createClient } = require('@supabase/supabase-js')
 const cron = require('node-cron')
 const qrcode = require('qrcode-terminal')
+const express = require('express')
 require('dotenv').config()
 
 // Configuration
@@ -325,9 +326,53 @@ class WhatsAppBot {
   }
 }
 
+// Initialize HTTP server for Render compatibility
+function startHttpServer() {
+  const app = express()
+  const port = process.env.PORT || 3000
+  
+  // Middleware to parse JSON
+  app.use(express.json())
+  
+  // Health check endpoint
+  app.get('/', (req, res) => {
+    res.json({
+      status: 'running',
+      service: 'WhatsApp Bot Service',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime()
+    })
+  })
+  
+  // Health check endpoint
+  app.get('/health', (req, res) => {
+    res.json({
+      status: 'healthy',
+      timestamp: new Date().toISOString()
+    })
+  })
+  
+  // Bot status endpoint
+  app.get('/bot/status', (req, res) => {
+    // This could be expanded to check actual bot status
+    res.json({
+      status: 'active',
+      lastCheck: new Date().toISOString(),
+      service: 'WhatsApp Bot with Baileys'
+    })
+  })
+  
+  app.listen(port, () => {
+    console.log(`HTTP server running on port ${port}`)
+  })
+}
+
 // Initialize and start the bot
 async function startBot() {
   console.log('Starting Team Update WhatsApp Bot...')
+  
+  // Start HTTP server first for Render port binding
+  startHttpServer()
   
   // Validate environment variables
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
