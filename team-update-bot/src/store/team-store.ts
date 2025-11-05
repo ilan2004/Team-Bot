@@ -15,7 +15,9 @@ import {
   createTask as apiCreateTask,
   updateTask as apiUpdateTask,
   calculateRealTimeStats,
-  subscribeToTasks
+  subscribeToTasks,
+  createAvailabilityRecord,
+  getMemberAvailability
 } from '@/lib/api';
 
 interface TeamStore {
@@ -58,6 +60,7 @@ interface TeamStore {
   // Database integration actions
   loadTasksFromDatabase: () => Promise<void>;
   loadTasksFromDatabaseByMember: (memberId: TeamMember) => Promise<void>;
+  loadMemberAvailabilityFromDatabase: (memberId: TeamMember) => Promise<void>;
   syncWithDatabase: () => Promise<void>;
   subscribeToRealTimeUpdates: () => () => void;
 }
@@ -240,7 +243,27 @@ export const useTeamStore = create<TeamStore>()(
         get().calculateStats();
       },
 
-      updateMemberStatus: (memberId, status, leaveDetails) => {
+      updateMemberStatus: async (memberId, status, leaveDetails) => {
+        // Save to database if leave details are provided
+        if (leaveDetails && leaveDetails.start && leaveDetails.end && status !== 'available') {
+          const dbStatus = {
+            'on-leave': 'leave',
+            'exams': 'exam',
+            'sick': 'sick',
+            'busy': 'busy',
+            'available': 'available'
+          }[status] as 'available' | 'leave' | 'exam' | 'busy' | 'sick';
+
+          await createAvailabilityRecord({
+            memberName: memberId,
+            status: dbStatus,
+            startDate: leaveDetails.start.toISOString().split('T')[0],
+            endDate: leaveDetails.end.toISOString().split('T')[0],
+            reason: leaveDetails.reason,
+          });
+        }
+
+        // Update local state
         set((state) => ({
           teamMembers: state.teamMembers.map((member) =>
             member.id === memberId
@@ -375,6 +398,37 @@ export const useTeamStore = create<TeamStore>()(
           });
         } catch {
           // Failed to load tasks for member
+        }
+      },
+
+      loadMemberAvailabilityFromDatabase: async (memberId) => {
+        try {
+          const availability = await getMemberAvailability(memberId);
+          if (availability) {
+            const uiStatus = {
+              'available': 'available',
+              'leave': 'on-leave',
+              'exam': 'exams',
+              'sick': 'sick',
+              'busy': 'busy'
+            }[availability.status] as AvailabilityStatus;
+
+            set((state) => ({
+              teamMembers: state.teamMembers.map((member) =>
+                member.id === memberId
+                  ? {
+                      ...member,
+                      status: uiStatus,
+                      leaveStart: availability.startDate ? new Date(availability.startDate) : undefined,
+                      leaveEnd: availability.endDate ? new Date(availability.endDate) : undefined,
+                      leaveReason: availability.reason || undefined,
+                    }
+                  : member
+              ),
+            }));
+          }
+        } catch {
+          // Failed to load member availability
         }
       },
 

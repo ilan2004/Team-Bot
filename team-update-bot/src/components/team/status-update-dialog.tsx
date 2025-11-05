@@ -95,25 +95,61 @@ export function StatusUpdateDialog({ open, onOpenChange, member }: StatusUpdateD
             <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
               <Label className="text-sm font-medium">Duration Details</Label>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-4">
+                {/* Quick Date Buttons */}
                 <div className="space-y-2">
-                  <Label htmlFor="leaveStart" className="text-sm">Start Date</Label>
-                  <Input
-                    id="leaveStart"
-                    type="date"
-                    value={leaveStart}
-                    onChange={(e) => setLeaveStart(e.target.value)}
-                  />
+                  <Label className="text-sm">Quick Select</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        const today = new Date().toISOString().split('T')[0];
+                        setLeaveStart(today);
+                        setLeaveEnd(today);
+                      }}
+                    >
+                      Today Only
+                    </Button>
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        const tomorrow = new Date();
+                        tomorrow.setDate(tomorrow.getDate() + 1);
+                        const tomorrowStr = tomorrow.toISOString().split('T')[0];
+                        setLeaveStart(tomorrowStr);
+                        setLeaveEnd(tomorrowStr);
+                      }}
+                    >
+                      Tomorrow Only
+                    </Button>
+                  </div>
                 </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="leaveEnd" className="text-sm">End Date (Optional)</Label>
-                  <Input
-                    id="leaveEnd"
-                    type="date"
-                    value={leaveEnd}
-                    onChange={(e) => setLeaveEnd(e.target.value)}
-                  />
+
+                {/* Date Range Selection */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="leaveStart" className="text-sm">Start Date</Label>
+                    <Input
+                      id="leaveStart"
+                      type="date"
+                      value={leaveStart}
+                      onChange={(e) => setLeaveStart(e.target.value)}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="leaveEnd" className="text-sm">End Date (Optional)</Label>
+                    <Input
+                      id="leaveEnd"
+                      type="date"
+                      value={leaveEnd}
+                      onChange={(e) => setLeaveEnd(e.target.value)}
+                    />
+                  </div>
                 </div>
               </div>
 

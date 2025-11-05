@@ -7,8 +7,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CalendarDays, Clock, Target, AlertCircle, Plus } from 'lucide-react';
+import { CalendarDays, Clock, Target, AlertCircle, Plus, Calendar } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
+import Link from 'next/link';
 import { TestFlightMilestones } from './test-flight-milestones';
 import { TeamStatusGrid } from './team-status-grid';
 import { TeamActivityChart } from './team-activity-chart';
@@ -59,6 +60,16 @@ export function TeamDashboard() {
           </p>
         </div>
         <div className="flex items-center justify-start sm:justify-end gap-2">
+          <Link href="/dashboard/leave">
+            <Button 
+              variant="outline"
+              size="sm"
+              className="hidden sm:flex"
+            >
+              <Calendar className="w-4 h-4 mr-1" />
+              Leave Calendar
+            </Button>
+          </Link>
           <Button 
             onClick={() => setShowTaskForm(true)}
             size="sm"

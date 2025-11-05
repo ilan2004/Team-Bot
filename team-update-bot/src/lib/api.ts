@@ -456,6 +456,170 @@ export async function getDailyLogsByMemberAndDateRange(
   }
 }
 
+// Availability Management Functions
+
+// Create or update availability status
+export async function createAvailabilityRecord(data: {
+  memberName: TeamMember;
+  status: 'available' | 'leave' | 'exam' | 'busy' | 'sick';
+  startDate: string; // YYYY-MM-DD format
+  endDate: string;   // YYYY-MM-DD format
+  reason?: string;
+}): Promise<boolean> {
+  try {
+    const { error } = await supabase
+      .from('availability')
+      .insert([
+        {
+          member_name: data.memberName,
+          status: data.status,
+          start_date: data.startDate,
+          end_date: data.endDate,
+          reason: data.reason || null,
+        }
+      ]);
+
+    if (error) {
+      console.error('Error creating availability record:', error);
+      return false;
+    }
+
+    return true;
+  } catch (err) {
+    console.error('Error creating availability record:', err);
+    return false;
+  }
+}
+
+// Get current availability status for a member
+export async function getMemberAvailability(memberName: TeamMember): Promise<{
+  status: 'available' | 'leave' | 'exam' | 'busy' | 'sick';
+  startDate?: string;
+  endDate?: string;
+  reason?: string;
+} | null> {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    
+    const { data, error } = await supabase
+      .from('availability')
+      .select('*')
+      .eq('member_name', memberName)
+      .lte('start_date', today)
+      .gte('end_date', today)
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    if (error) {
+      console.error('Error fetching member availability:', error);
+      return null;
+    }
+
+    if (!data || data.length === 0) {
+      return { status: 'available' };
+    }
+
+    const record = data[0];
+    return {
+      status: record.status,
+      startDate: record.start_date,
+      endDate: record.end_date,
+      reason: record.reason,
+    };
+  } catch (err) {
+    console.error('Error fetching member availability:', err);
+    return null;
+  }
+}
+
+// Get all availability records for a date range
+export async function getAvailabilityForDateRange(
+  startDate: string,
+  endDate: string
+): Promise<Array<{
+  id: string;
+  memberName: TeamMember;
+  status: string;
+  startDate: string;
+  endDate: string;
+  reason: string | null;
+  createdAt: string;
+}>> {
+  try {
+    const { data, error } = await supabase
+      .from('availability')
+      .select('*')
+      .or(`start_date.lte.${endDate},end_date.gte.${startDate}`)
+      .order('start_date', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching availability records:', error);
+      return [];
+    }
+
+    return (data || []).map(record => ({
+      id: record.id,
+      memberName: record.member_name,
+      status: record.status,
+      startDate: record.start_date,
+      endDate: record.end_date,
+      reason: record.reason,
+      createdAt: record.created_at,
+    }));
+  } catch (err) {
+    console.error('Error fetching availability records:', err);
+    return [];
+  }
+}
+
+// Get leave summary for a specific month
+export async function getMonthlyLeaveSummary(year: number, month: number): Promise<{
+  [key: string]: Array<{
+    memberName: TeamMember;
+    status: string;
+    startDate: string;
+    endDate: string;
+    reason: string | null;
+  }>;
+}> {
+  try {
+    const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
+    const endDate = `${year}-${month.toString().padStart(2, '0')}-31`;
+    
+    const records = await getAvailabilityForDateRange(startDate, endDate);
+    
+    // Group by date
+    const summary: { [key: string]: Array<any> } = {};
+    
+    records.forEach(record => {
+      const start = new Date(record.startDate);
+      const end = new Date(record.endDate);
+      
+      // Generate all dates in the range
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        const dateKey = d.toISOString().split('T')[0];
+        
+        if (!summary[dateKey]) {
+          summary[dateKey] = [];
+        }
+        
+        summary[dateKey].push({
+          memberName: record.memberName,
+          status: record.status,
+          startDate: record.startDate,
+          endDate: record.endDate,
+          reason: record.reason,
+        });
+      }
+    });
+    
+    return summary;
+  } catch (err) {
+    console.error('Error fetching monthly leave summary:', err);
+    return {};
+  }
+}
+
 // Get team attendance summary for a specific date
 export async function getTeamAttendanceSummary(date?: string): Promise<{
   date: string;

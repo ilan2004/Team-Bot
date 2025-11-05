@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useTeamStore } from '@/store/team-store';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -34,7 +34,12 @@ export function MemberPage({ memberId }: MemberPageProps) {
   const [showCheckIn, setShowCheckIn] = useState(false);
   const [showStatusUpdate, setShowStatusUpdate] = useState(false);
   
-  const { teamMembers, getTasksByMember, getTodaysTasks } = useTeamStore();
+  const { teamMembers, getTasksByMember, getTodaysTasks, loadMemberAvailabilityFromDatabase } = useTeamStore();
+
+  // Load member availability on component mount
+  React.useEffect(() => {
+    loadMemberAvailabilityFromDatabase(memberId);
+  }, [memberId, loadMemberAvailabilityFromDatabase]);
   
   const member = teamMembers.find(m => m.id === memberId);
   const allTasks = getTasksByMember(memberId);
@@ -86,14 +91,34 @@ export function MemberPage({ memberId }: MemberPageProps) {
             <div className="min-w-0 flex-1">
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">{member.name}</h1>
               <p className="text-muted-foreground truncate">{member.role}</p>
-              <div className="flex items-center space-x-3 mt-2">
-                <Badge 
-                  variant="secondary" 
-                  className={`text-xs ${statusColors[member.status]} text-white`}
-                >
-                  <div className="w-2 h-2 rounded-full bg-white mr-1" />
-                  {statusLabels[member.status]}
-                </Badge>
+              <div className="flex flex-col space-y-2 mt-2">
+                <div className="flex items-center space-x-3">
+                  <Badge 
+                    variant="secondary" 
+                    className={`text-xs ${statusColors[member.status]} text-white`}
+                  >
+                    <div className="w-2 h-2 rounded-full bg-white mr-1" />
+                    {statusLabels[member.status]}
+                  </Badge>
+                </div>
+                
+                {/* Show leave dates if member is on leave */}
+                {member.status !== 'available' && member.leaveStart && (
+                  <div className="text-xs text-muted-foreground">
+                    {member.leaveEnd && member.leaveStart !== member.leaveEnd ? (
+                      <span>
+                        📅 {format(member.leaveStart, 'MMM dd')} - {format(member.leaveEnd, 'MMM dd, yyyy')}
+                      </span>
+                    ) : (
+                      <span>
+                        📅 {format(member.leaveStart, 'MMM dd, yyyy')}
+                      </span>
+                    )}
+                    {member.leaveReason && (
+                      <span className="block mt-1">💬 {member.leaveReason}</span>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>
