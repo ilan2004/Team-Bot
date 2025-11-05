@@ -376,25 +376,31 @@ export async function getDailyLogsByDate(date?: string): Promise<DatabaseDailyLo
   }
 }
 
-// Check if a member has signed in today
+// Check if a member is currently signed in today (considers both check-in and check-out)
 export async function hasMemberSignedInToday(memberName: TeamMember, date?: string): Promise<boolean> {
   try {
     const targetDate = date || new Date().toISOString().split('T')[0];
     
+    // Get all logs for this member today, ordered by creation time (most recent first)
     const { data, error } = await supabase
       .from('daily_logs')
-      .select('id')
+      .select('log_type, created_at')
       .eq('member_name', memberName)
-      .eq('log_type', 'check_in')
       .eq('log_date', targetDate)
-      .limit(1);
+      .order('created_at', { ascending: false });
 
     if (error) {
       console.error('Error checking sign-in status:', error);
       return false;
     }
 
-    return (data?.length || 0) > 0;
+    if (!data || data.length === 0) {
+      return false; // No logs today means not signed in
+    }
+
+    // The most recent log determines the current status
+    const mostRecentLog = data[0];
+    return mostRecentLog.log_type === 'check_in';
   } catch (err) {
     console.error('Error checking sign-in status:', err);
     return false;
